@@ -1,6 +1,6 @@
 Fitness Pandora
 ======
 
-## Don Herwig | Kyle Justice | Brendan Todahl
+#### Don Herwig | Kyle Justice | Brendan Todahl
 
-#### The Ohio State University | CSE 5236 SP16
+###### The Ohio State University | CSE 5236 SP16
