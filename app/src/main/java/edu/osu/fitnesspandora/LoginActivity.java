@@ -499,24 +499,49 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         protected Boolean doInBackground(Void... params) {
 
 
-            // Attempt to log user in
-            Firebase attemptLogin = new Firebase("https://fitnesspandora.firebaseio.com/");
-            attemptLogin.authWithPassword(mEmail, mPassword, new Firebase.AuthResultHandler() {
-                @Override
-                public void onAuthenticated(AuthData authData) {
-                    System.out.println("User ID: " + authData.getUid() + ", Provider: " + authData.getProvider());
-                    mUserAuthenticated = true;
-                }
+            if(mUserIsNew){
+                // Attempt to register a new user
+                Firebase attemptRegistration = new Firebase("https://fitnesspandora.firebaseio.com/");
+                attemptRegistration.createUser(mEmail, mPassword, new Firebase.ValueResultHandler<Map<String, Object>>() {
+                    @Override
+                    public void onSuccess(Map<String, Object> result) {
+                        System.out.println("Successfully created user account with uid: " + result.get("uid"));
+                        Log.i("Firebase", result.toString());
+                        // TODO AUTHENTICATE USER AFTER REGISTRATION
 
-                @Override
-                public void onAuthenticationError(FirebaseError firebaseError) {
-                    // there was an error
-                    Log.e("Firebase Login Error", firebaseError.getMessage() + firebaseError.getDetails());
-                    Log.e("Firebase Login Error", Integer.toString(firebaseError.getCode()));
-                    mFirebaseError = firebaseError.getCode();
-                    mUserAuthenticated = false;
-                }
-            });
+                    }
+
+                    @Override
+                    public void onError(FirebaseError firebaseError) {
+                        // there was an error
+                        Log.e("Firebase Register Error", firebaseError.getMessage() + firebaseError.getDetails());
+                        Log.e("Firebase Register Error", Integer.toString(firebaseError.getCode()));
+                        mFirebaseError = firebaseError.getCode();
+                        mUserAuthenticated = false;
+                    }
+                });
+
+
+            }else{
+                // Attempt to log user in
+                Firebase attemptLogin = new Firebase("https://fitnesspandora.firebaseio.com/");
+                attemptLogin.authWithPassword(mEmail, mPassword, new Firebase.AuthResultHandler() {
+                    @Override
+                    public void onAuthenticated(AuthData authData) {
+                        System.out.println("User ID: " + authData.getUid() + ", Provider: " + authData.getProvider());
+                        mUserAuthenticated = true;
+                    }
+
+                    @Override
+                    public void onAuthenticationError(FirebaseError firebaseError) {
+                        // there was an error
+                        Log.e("Firebase Login Error", firebaseError.getMessage() + firebaseError.getDetails());
+                        Log.e("Firebase Login Error", Integer.toString(firebaseError.getCode()));
+                        mFirebaseError = firebaseError.getCode();
+                        mUserAuthenticated = false;
+                    }
+                });
+            }
 
             try {
                 // Delay to simulate network access.
@@ -524,8 +549,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             } catch (InterruptedException e) {
                 return false;
             }
-
-
 
             // Doesn't matter what we return here. Won't use it.
             return true;
