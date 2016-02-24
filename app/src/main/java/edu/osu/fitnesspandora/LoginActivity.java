@@ -3,6 +3,8 @@ package edu.osu.fitnesspandora;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -53,16 +55,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private static final int REQUEST_READ_CONTACTS = 0;
 
     /**
-     * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
-     */
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "foo@example.com:hello", "bar@example.com:world"
-    };
-    /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
     private UserLoginTask mAuthTask = null;
+
+    // TESTING FIREBASE
+    private boolean mUserAuthenticated;
+    private int mFirebaseError;
 
     // UI references.
     private AutoCompleteTextView mEmailView;
@@ -99,35 +98,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
         });
 
-        // Create a new user
-        myFirebaseRef.createUser("kjustice@firebase.com", "correcthorsebatterystaple", new Firebase.ValueResultHandler<Map<String, Object>>() {
-            @Override
-            public void onSuccess(Map<String, Object> result) {
-                System.out.println("Successfully created user account with uid: " + result.get("uid"));
-                Log.i("Firebase", result.toString());
-            }
 
-            @Override
-            public void onError(FirebaseError firebaseError) {
-                // there was an error
-                Log.e("Firebase", "Create user error.");
-            }
-        });
-
-        // Log user in
-        Firebase ref = new Firebase("https://fitnesspandora.firebaseio.com/");
-        ref.authWithPassword("kjustice@firebase.com", "correcthorsebatterystaple", new Firebase.AuthResultHandler() {
-            @Override
-            public void onAuthenticated(AuthData authData) {
-                System.out.println("User ID: " + authData.getUid() + ", Provider: " + authData.getProvider());
-            }
-
-            @Override
-            public void onAuthenticationError(FirebaseError firebaseError) {
-                // there was an error
-                Log.e("Firebase", "User login error.");
-            }
-        });
 
         // FIREBASE ANDROID GUIDE
         // Create a reference to the base Firebase database
@@ -263,7 +234,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
+            mAuthTask = new UserLoginTask(email, password, this);
             mAuthTask.execute((Void) null);
         }
     }
@@ -376,32 +347,53 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         private final String mEmail;
         private final String mPassword;
+        private final Context mContext;
 
-        UserLoginTask(String email, String password) {
+        UserLoginTask(String email, String password, Context context) {
             mEmail = email;
             mPassword = password;
+            mContext = context;
         }
 
         @Override
         protected Boolean doInBackground(Void... params) {
             // TODO: attempt authentication against a network service.
+            // START FIREBASE CODE
+
+
+
+            // Attempt to log user in
+            Firebase attemptLogin = new Firebase("https://fitnesspandora.firebaseio.com/");
+            attemptLogin.authWithPassword(mEmail, mPassword, new Firebase.AuthResultHandler() {
+                @Override
+                public void onAuthenticated(AuthData authData) {
+                    System.out.println("User ID: " + authData.getUid() + ", Provider: " + authData.getProvider());
+                    mUserAuthenticated = true;
+                }
+
+                @Override
+                public void onAuthenticationError(FirebaseError firebaseError) {
+                    // there was an error
+                    Log.e("Firebase Login Error", firebaseError.getMessage() + firebaseError.getDetails());
+                    Log.e("Firebase Login Error", Integer.toString(firebaseError.getCode()));
+                    mFirebaseError = firebaseError.getCode();
+                    mUserAuthenticated = false;
+                }
+            });
 
             try {
-                // Simulate network access.
+                // Delay to simulate network access.
                 Thread.sleep(2000);
             } catch (InterruptedException e) {
                 return false;
             }
 
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mEmail)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
-                }
-            }
+
 
             // TODO: register the new account here.
+            // END FIREBASE CODE
+
+            // Doesn't matter what we return here. Won't use it.
             return true;
         }
 
@@ -410,11 +402,25 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             mAuthTask = null;
             showProgress(false);
 
-            if (success) {
+            // If doInBackground returns true,
+            if (mUserAuthenticated) {
                 finish();
+
+                // User authenticated, intent to start the main activity
+                Intent myIntent = new Intent(LoginActivity.this, MainActivity.class);
+                LoginActivity.this.startActivity(myIntent);
             } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
+                // Figure out the error during the login
+                if(mFirebaseError == FirebaseError.INVALID_AUTH_ARGUMENTS || mFirebaseError == FirebaseError.INVALID_CREDENTIALS || mFirebaseError == FirebaseError.INVALID_EMAIL){
+                    mEmailView.setError(getString(R.string.error_invalid_email));
+                    mEmailView.requestFocus();
+                }else if(mFirebaseError == FirebaseError.INVALID_PASSWORD){
+                    mPasswordView.setError(getString(R.string.error_incorrect_password));
+                    mPasswordView.requestFocus();
+                }else{
+                    mEmailView.setError(getString(R.string.error_unknown_error));
+                }
+
             }
         }
 
