@@ -19,6 +19,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -29,6 +30,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.firebase.client.AuthData;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
@@ -36,6 +38,7 @@ import com.firebase.client.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -71,7 +74,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // START FIREBASE TESTING
+        // ****** START FIREBASE TESTING ******
+        // FIREBASE QUICKSTART
         // Initialize Firebase with the context
         Firebase.setAndroidContext(this);
 
@@ -79,21 +83,65 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         Firebase myFirebaseRef = new Firebase("https://fitnesspandora.firebaseio.com/");
 
         // Writing data
-        myFirebaseRef.child("message").setValue("Do you have data? You'll love Firebase.");
+        myFirebaseRef.child("message").setValue("FitnessPandora Test #1");
 
         // Reading data
         myFirebaseRef.child("message").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
                 System.out.println(snapshot.getValue());  //prints "Do you have data? You'll love Firebase."
+                Log.i("Firebase", snapshot.toString());
+
             }
-            @Override public void onCancelled(FirebaseError error) { }
+
+            @Override
+            public void onCancelled(FirebaseError error) {
+            }
         });
 
+        // Create a new user
+        myFirebaseRef.createUser("kjustice@firebase.com", "correcthorsebatterystaple", new Firebase.ValueResultHandler<Map<String, Object>>() {
+            @Override
+            public void onSuccess(Map<String, Object> result) {
+                System.out.println("Successfully created user account with uid: " + result.get("uid"));
+                Log.i("Firebase", result.toString());
+            }
+
+            @Override
+            public void onError(FirebaseError firebaseError) {
+                // there was an error
+                Log.e("Firebase", "Create user error.");
+            }
+        });
+
+        // Log user in
+        Firebase ref = new Firebase("https://fitnesspandora.firebaseio.com/");
+        ref.authWithPassword("kjustice@firebase.com", "correcthorsebatterystaple", new Firebase.AuthResultHandler() {
+            @Override
+            public void onAuthenticated(AuthData authData) {
+                System.out.println("User ID: " + authData.getUid() + ", Provider: " + authData.getProvider());
+            }
+
+            @Override
+            public void onAuthenticationError(FirebaseError firebaseError) {
+                // there was an error
+                Log.e("Firebase", "User login error.");
+            }
+        });
+
+        // FIREBASE ANDROID GUIDE
+        // Create a reference to the base Firebase database
+        Firebase rootRef = new Firebase("https://docs-examples.firebaseio.com/web/data");
+        // Create a reference to only the name of 'mchen' in the database
+        rootRef = new Firebase("https://docs-examples.firebaseio.com/web/data/users/mchen/name");
+        // Alternately, reate a reference to the Firebase database root, then travel to the child
+        rootRef = new Firebase("https://docs-examples.firebaseio.com/web/data");
+        rootRef.child("users/mchen/name");
 
 
 
-        // END FIREBASE TESTING
+
+        // ****** END FIREBASE TESTING ******
 
         setContentView(R.layout.activity_login);
         // Set up the login form.
