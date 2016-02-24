@@ -29,6 +29,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.firebase.client.DataSnapshot;
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,6 +70,31 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // START FIREBASE TESTING
+        // Initialize Firebase with the context
+        Firebase.setAndroidContext(this);
+
+        // Create a reference to the Firebase database
+        Firebase myFirebaseRef = new Firebase("https://fitnesspandora.firebaseio.com/");
+
+        // Writing data
+        myFirebaseRef.child("message").setValue("Do you have data? You'll love Firebase.");
+
+        // Reading data
+        myFirebaseRef.child("message").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                System.out.println(snapshot.getValue());  //prints "Do you have data? You'll love Firebase."
+            }
+            @Override public void onCancelled(FirebaseError error) { }
+        });
+
+
+
+
+        // END FIREBASE TESTING
+
         setContentView(R.layout.activity_login);
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
