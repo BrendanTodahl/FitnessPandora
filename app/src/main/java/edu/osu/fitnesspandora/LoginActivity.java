@@ -39,6 +39,7 @@ import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -57,7 +58,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
+    // The AsyncTask that attempts to contact Firebase to authenticate user.
     private UserLoginTask mAuthTask = null;
+
+    // Determines if the user is logging in or registering a new account
+    private boolean mUserIsNew = false;
 
     // TESTING FIREBASE
     private boolean mUserAuthenticated;
@@ -66,8 +71,14 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     // UI references.
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
+    private EditText mFirstNameView;
+    private EditText mLastNameView;
     private View mProgressView;
     private View mLoginFormView;
+    private View mRegisterFormView;
+    private Button mEmailSignInButton;
+    private Button mEmailRegisterButton;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,7 +142,21 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
         });
 
-        Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
+        mFirstNameView = (EditText) findViewById(R.id.first_name);
+
+        mLastNameView = (EditText) findViewById(R.id.last_name);
+        mLastNameView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
+                if (id == R.id.login || id == EditorInfo.IME_NULL) {
+                    attemptLogin();
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -139,10 +164,70 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
         });
 
+        mEmailRegisterButton = (Button) findViewById(R.id.email_register_button);
+        mEmailRegisterButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                // If the user already indicated that they were new, attempt the login
+                if(mUserIsNew){
+                    attemptLogin();
+                }else{
+                    // Otherwise change the view to registration
+                    userIsNew(true);
+                }
+            }
+        });
+
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+        mRegisterFormView = findViewById(R.id.email_register_form);
     }
 
+    // If userIsNew is true, hides the login button and shows the registration information.
+    // If userIsNew is false, reverses the effect.
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+    private void userIsNew(final boolean userIsNew) {
+        // If the global flag is not align with the new value, changes need be made
+        if(mUserIsNew != userIsNew){
+            // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
+            // for very easy animations. If available, use these APIs to fade-in
+            // the progress spinner.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+                int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+
+                mEmailSignInButton.setVisibility(userIsNew ? View.GONE : View.VISIBLE);
+                mEmailSignInButton.animate().setDuration(shortAnimTime).alpha(
+                        userIsNew ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        mEmailSignInButton.setVisibility(userIsNew ? View.GONE : View.VISIBLE);
+                    }
+                });
+
+                mRegisterFormView.setVisibility(userIsNew ? View.VISIBLE : View.GONE);
+                mRegisterFormView.animate().setDuration(shortAnimTime).alpha(
+                        userIsNew ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        mRegisterFormView.setVisibility(userIsNew ? View.VISIBLE : View.GONE);
+                    }
+                });
+            } else {
+                // The ViewPropertyAnimator APIs are not available, so simply show
+                // and hide the relevant UI components.
+                mRegisterFormView.setVisibility(userIsNew ? View.VISIBLE : View.GONE);
+                mEmailSignInButton.setVisibility(userIsNew ? View.GONE : View.VISIBLE);
+            }
+
+            // Update the global flag to indicate whether the user is new or not
+            mUserIsNew = userIsNew;
+        }
+
+    }
+
+
+    // For the AutoCompleteTextView layout. Email input.
     private void populateAutoComplete() {
         if (!mayRequestContacts()) {
             return;
@@ -151,6 +236,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         getLoaderManager().initLoader(0, null, this);
     }
 
+    // For the AutoCompleteTextView layout. Email input.
     private boolean mayRequestContacts() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             return true;
@@ -176,6 +262,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     /**
      * Callback received when a permissions request has been completed.
      */
+    // For the AutoCompleteTextView layout. Email input.
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
@@ -192,9 +279,44 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * If there are form errors (invalid email, missing fields, etc.), the
      * errors are presented and no actual login attempt is made.
      */
+    // Check all of the information the user submitted before attempting a remote login
     private void attemptLogin() {
         if (mAuthTask != null) {
             return;
+        }
+
+        boolean cancel = false;
+        View focusView = null;
+
+        // Store the user information so we can pass it to the Firebase
+        Map<String, String> userInformation = new HashMap<String, String>();
+
+        // Reset errors.
+        mFirstNameView.setError(null);
+        mLastNameView.setError(null);
+
+        // Store values at the time of the registration attempt.
+        String firstName = mFirstNameView.getText().toString();
+        userInformation.put("firstName", firstName);
+        String lastName = mLastNameView.getText().toString();
+        userInformation.put("lastName", lastName);
+
+        // Check for whether the user is new or not
+        if(mUserIsNew){
+
+            // Check for valid last name
+            if(TextUtils.isEmpty(lastName) || !isNameValid(lastName)){
+                mLastNameView.setError(getString(R.string.error_invalid_name));
+                focusView = mLastNameView;
+                cancel = true;
+            }
+
+            // Check for valid first name
+            if(TextUtils.isEmpty(firstName) || !isNameValid(firstName)){
+                mFirstNameView.setError(getString(R.string.error_invalid_name));
+                focusView = mFirstNameView;
+                cancel = true;
+            }
         }
 
         // Reset errors.
@@ -203,13 +325,12 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         // Store values at the time of the login attempt.
         String email = mEmailView.getText().toString();
+        userInformation.put("email", email);
         String password = mPasswordView.getText().toString();
-
-        boolean cancel = false;
-        View focusView = null;
+        userInformation.put("password", password);
 
         // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
+        if (TextUtils.isEmpty(password) || !isPasswordValid(password)) {
             mPasswordView.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
             cancel = true;
@@ -226,6 +347,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             cancel = true;
         }
 
+
         if (cancel) {
             // There was an error; don't attempt login and focus the first
             // form field with an error.
@@ -234,7 +356,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(email, password, this);
+            // No errors in the user's initial data. Attempt login with the database.
+            mAuthTask = new UserLoginTask(userInformation, this);
             mAuthTask.execute((Void) null);
         }
     }
@@ -249,9 +372,17 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         return password.length() > 4;
     }
 
+    private boolean isNameValid(String name) {
+        //TODO: Replace this with your own logic
+        // Ensure the name has only alphabetical characters
+        return name.matches("[a-zA-Z]+");
+    }
+
     /**
      * Shows the progress UI and hides the login form.
      */
+    // If show is true, hides the login information and shows the loading circle/bar.
+    // If show is false, reverses the effect.
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     private void showProgress(final boolean show) {
         // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
@@ -285,6 +416,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
     }
 
+    // Used to load emails for the autocomplete.
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         return new CursorLoader(this,
@@ -302,6 +434,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 ContactsContract.Contacts.Data.IS_PRIMARY + " DESC");
     }
 
+    // Used to load emails for the autocomplete.
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
         List<String> emails = new ArrayList<>();
@@ -314,11 +447,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         addEmailsToAutoComplete(emails);
     }
 
+    // Used to load emails for the autocomplete.
     @Override
     public void onLoaderReset(Loader<Cursor> cursorLoader) {
 
     }
 
+    // Used to load emails for the autocomplete.
     private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
         //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
         ArrayAdapter<String> adapter =
@@ -328,7 +463,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mEmailView.setAdapter(adapter);
     }
 
-
+    // Used to load emails for the autocomplete.
     private interface ProfileQuery {
         String[] PROJECTION = {
                 ContactsContract.CommonDataKinds.Email.ADDRESS,
@@ -343,23 +478,25 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
+    // Contacts FIREBASE and attempts to login or register a user.
     public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
         private final String mEmail;
         private final String mPassword;
+        private final String mFirstName;
+        private final String mLastName;
         private final Context mContext;
 
-        UserLoginTask(String email, String password, Context context) {
-            mEmail = email;
-            mPassword = password;
+        UserLoginTask(Map<String, String> userInformation, Context context) {
+            mEmail = userInformation.remove("email");
+            mPassword = userInformation.remove("password");
+            mFirstName = userInformation.remove("firstName");
+            mLastName = userInformation.remove("lastName");
             mContext = context;
         }
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
-            // START FIREBASE CODE
-
 
 
             // Attempt to log user in
@@ -389,9 +526,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
 
 
-
-            // TODO: register the new account here.
-            // END FIREBASE CODE
 
             // Doesn't matter what we return here. Won't use it.
             return true;
