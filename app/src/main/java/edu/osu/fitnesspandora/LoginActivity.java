@@ -64,9 +64,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     // Determines if the user is logging in or registering a new account
     private boolean mUserIsNew = false;
 
-    // TESTING FIREBASE
+    // Firebase variables
+    private boolean mUserRegistered;
     private boolean mUserAuthenticated;
     private int mFirebaseError;
+    private AuthData mAuthData;
 
     // UI references.
     private AutoCompleteTextView mEmailView;
@@ -79,51 +81,33 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private Button mEmailSignInButton;
     private Button mEmailRegisterButton;
 
+    // Used to store the new user's initial data into Firebase
+    public class newUser {
+        private String firstName;
+        private String lastName;
+        private String email;
+        public newUser(String firstName, String lastName, String email) {
+            this.firstName = firstName;
+            this.lastName = lastName;
+            this.email = email;
+        }
+        public String getFirstName() {
+            return firstName;
+        }
+        public String getLastName() {
+            return lastName;
+        }
+        public String getEmail() {
+            return email;
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // ****** START FIREBASE TESTING ******
-        // FIREBASE QUICKSTART
         // Initialize Firebase with the context
         Firebase.setAndroidContext(this);
-
-        // Create a reference to the Firebase database
-        Firebase myFirebaseRef = new Firebase("https://fitnesspandora.firebaseio.com/");
-
-        // Writing data
-        myFirebaseRef.child("message").setValue("FitnessPandora Test #1");
-
-        // Reading data
-        myFirebaseRef.child("message").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot snapshot) {
-                System.out.println(snapshot.getValue());  //prints "Do you have data? You'll love Firebase."
-                Log.i("Firebase", snapshot.toString());
-
-            }
-
-            @Override
-            public void onCancelled(FirebaseError error) {
-            }
-        });
-
-
-
-        // FIREBASE ANDROID GUIDE
-        // Create a reference to the base Firebase database
-        Firebase rootRef = new Firebase("https://docs-examples.firebaseio.com/web/data");
-        // Create a reference to only the name of 'mchen' in the database
-        rootRef = new Firebase("https://docs-examples.firebaseio.com/web/data/users/mchen/name");
-        // Alternately, reate a reference to the Firebase database root, then travel to the child
-        rootRef = new Firebase("https://docs-examples.firebaseio.com/web/data");
-        rootRef.child("users/mchen/name");
-
-
-
-
-        // ****** END FIREBASE TESTING ******
 
         setContentView(R.layout.activity_login);
         // Set up the login form.
@@ -498,37 +482,64 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         @Override
         protected Boolean doInBackground(Void... params) {
 
+            // Open Firebase
+            Firebase firebaseRef = new Firebase("https://fitnesspandora.firebaseio.com/");
 
+            // If the user is new, they need to register first
             if(mUserIsNew){
                 // Attempt to register a new user
-                Firebase attemptRegistration = new Firebase("https://fitnesspandora.firebaseio.com/");
-                attemptRegistration.createUser(mEmail, mPassword, new Firebase.ValueResultHandler<Map<String, Object>>() {
+                firebaseRef.createUser(mEmail, mPassword, new Firebase.ValueResultHandler<Map<String, Object>>() {
                     @Override
                     public void onSuccess(Map<String, Object> result) {
-                        System.out.println("Successfully created user account with uid: " + result.get("uid"));
-                        Log.i("Firebase", result.toString());
-                        // TODO AUTHENTICATE USER AFTER REGISTRATION
+                        Log.i("Firebase User Created", result.get("uid").toString());
 
+                        // Initialize the user's data in Firebase
+                        Firebase newUserRef = new Firebase("https://fitnesspandora.firebaseio.com/users/" + result.get("uid"));
+                        newUser theNewUser = new newUser(mFirstName, mLastName, mEmail);
+                        newUserRef.setValue(theNewUser, new Firebase.CompletionListener() {
+                            @Override
+                            public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+                                if (firebaseError != null) {
+                                    // TODO User could be registered, but their data could not be initialized error?
+                                    Log.e("Firebase New Data Error", firebaseError.getDetails());
+                                    mFirebaseError = firebaseError.getCode();
+                                    mUserRegistered = false;
+                                } else {
+                                    Log.i("Firebase", "New user's data successfully initialized.");
+                                    mUserRegistered = true;
+                                }
+                            }
+                        });
                     }
-
                     @Override
                     public void onError(FirebaseError firebaseError) {
                         // there was an error
                         Log.e("Firebase Register Error", firebaseError.getMessage() + firebaseError.getDetails());
                         Log.e("Firebase Register Error", Integer.toString(firebaseError.getCode()));
                         mFirebaseError = firebaseError.getCode();
-                        mUserAuthenticated = false;
+                        mUserRegistered = false;
                     }
                 });
 
+                // Wait for the registration results
+                try {
+                    // Delay to simulate network access.
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    return false;
+                }
+            }
 
-            }else{
+            // If the user is not new, or the user registered successfully,
+            if(!mUserIsNew || mUserRegistered){
+
                 // Attempt to log user in
-                Firebase attemptLogin = new Firebase("https://fitnesspandora.firebaseio.com/");
-                attemptLogin.authWithPassword(mEmail, mPassword, new Firebase.AuthResultHandler() {
+                firebaseRef.authWithPassword(mEmail, mPassword, new Firebase.AuthResultHandler() {
                     @Override
                     public void onAuthenticated(AuthData authData) {
-                        System.out.println("User ID: " + authData.getUid() + ", Provider: " + authData.getProvider());
+                        Log.i("Firebase", "User logged in successfully.");
+                        // Set the global auth token
+                        mAuthData = authData;
                         mUserAuthenticated = true;
                     }
 
@@ -541,13 +552,15 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         mUserAuthenticated = false;
                     }
                 });
-            }
 
-            try {
-                // Delay to simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                return false;
+                // Wait for the login results
+                try {
+                    // Delay to simulate network access.
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    return false;
+                }
+
             }
 
             // Doesn't matter what we return here. Won't use it.
@@ -568,7 +581,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 LoginActivity.this.startActivity(myIntent);
             } else {
                 // Figure out the error during the login
-                if(mFirebaseError == FirebaseError.INVALID_AUTH_ARGUMENTS || mFirebaseError == FirebaseError.INVALID_CREDENTIALS || mFirebaseError == FirebaseError.INVALID_EMAIL){
+                if(mFirebaseError == FirebaseError.INVALID_AUTH_ARGUMENTS || mFirebaseError == FirebaseError.INVALID_CREDENTIALS || mFirebaseError == FirebaseError.INVALID_EMAIL || mFirebaseError == FirebaseError.EMAIL_TAKEN){
                     mEmailView.setError(getString(R.string.error_invalid_email));
                     mEmailView.requestFocus();
                 }else if(mFirebaseError == FirebaseError.INVALID_PASSWORD){
