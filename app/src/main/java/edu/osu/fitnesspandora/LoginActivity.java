@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -20,6 +21,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -39,6 +41,7 @@ import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -57,64 +60,95 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
+    // The AsyncTask that attempts to contact Firebase to authenticate user.
     private UserLoginTask mAuthTask = null;
 
-    // TESTING FIREBASE
+    // Determines if the user is logging in or registering a new account
+    private boolean mUserIsNew = false;
+
+    // Firebase variables
+    private boolean mUserRegistered;
     private boolean mUserAuthenticated;
     private int mFirebaseError;
+    private AuthData mAuthData;
+
+    // User's credentials from SharedPreferences
+    private String mAuthToken;
+    private String mAuthUID;
 
     // UI references.
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
+    private EditText mFirstNameView;
+    private EditText mLastNameView;
     private View mProgressView;
     private View mLoginFormView;
+    private View mRegisterFormView;
+    private Button mEmailSignInButton;
+    private Button mEmailRegisterButton;
+
+    // Used to store the new user's initial data into Firebase
+    public class newUser {
+        private String firstName;
+        private String lastName;
+        private String email;
+        public newUser(String firstName, String lastName, String email) {
+            this.firstName = firstName;
+            this.lastName = lastName;
+            this.email = email;
+        }
+        public String getFirstName() {
+            return firstName;
+        }
+        public String getLastName() {
+            return lastName;
+        }
+        public String getEmail() {
+            return email;
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // ****** START FIREBASE TESTING ******
-        // FIREBASE QUICKSTART
+        // Restore preferences
+        SharedPreferences userAuthData = getSharedPreferences("USER_AUTH_DATA", 0);
+        mAuthToken = userAuthData.getString("authToken", "");
+        mAuthUID = userAuthData.getString("authUID", "");
+
         // Initialize Firebase with the context
         Firebase.setAndroidContext(this);
 
-        // Create a reference to the Firebase database
-        Firebase myFirebaseRef = new Firebase("https://fitnesspandora.firebaseio.com/");
-
-        // Writing data
-        myFirebaseRef.child("message").setValue("FitnessPandora Test #1");
-
-        // Reading data
-        myFirebaseRef.child("message").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot snapshot) {
-                System.out.println(snapshot.getValue());  //prints "Do you have data? You'll love Firebase."
-                Log.i("Firebase", snapshot.toString());
-
-            }
-
-            @Override
-            public void onCancelled(FirebaseError error) {
-            }
-        });
-
-
-
-        // FIREBASE ANDROID GUIDE
-        // Create a reference to the base Firebase database
-        Firebase rootRef = new Firebase("https://docs-examples.firebaseio.com/web/data");
-        // Create a reference to only the name of 'mchen' in the database
-        rootRef = new Firebase("https://docs-examples.firebaseio.com/web/data/users/mchen/name");
-        // Alternately, reate a reference to the Firebase database root, then travel to the child
-        rootRef = new Firebase("https://docs-examples.firebaseio.com/web/data");
-        rootRef.child("users/mchen/name");
-
-
-
-
-        // ****** END FIREBASE TESTING ******
+        // If the saved auth token isn't empty string,
+        if(mAuthToken.length() > 0){
+            mUserAuthenticated = true;
+            // Attempt to log in user first
+            Firebase firebaseUserRef = new Firebase("https://fitnesspandora.firebaseio.com/");
+            firebaseUserRef.authWithCustomToken(mAuthToken, new Firebase.AuthResultHandler() {
+                @Override
+                public void onAuthenticated(AuthData authData) {
+                    // Token is good. User's information must already be stored. Proceed to main activity.
+                    Log.i("Firebase", "User already has valid token. Logging in.");
+                    // Destroy the login activity
+                    finish();
+                    // User authenticated, intent to start the main activity
+                    Intent myIntent = new Intent(LoginActivity.this, MainActivity.class);
+                    LoginActivity.this.startActivity(myIntent);
+                }
+                @Override
+                public void onAuthenticationError(FirebaseError firebaseError) {
+                    // User's token is invalid. Allow user to login or register
+                    mUserAuthenticated = false;
+                }
+            });
+            //while(mUserAuthenticated){
+                // Pause application until we figure out if the token is already valid
+            //}
+        }
 
         setContentView(R.layout.activity_login);
+
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
@@ -131,7 +165,21 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
         });
 
-        Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
+        mFirstNameView = (EditText) findViewById(R.id.first_name);
+
+        mLastNameView = (EditText) findViewById(R.id.last_name);
+        mLastNameView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
+                if (id == R.id.login || id == EditorInfo.IME_NULL) {
+                    attemptLogin();
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -139,10 +187,71 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
         });
 
+        mEmailRegisterButton = (Button) findViewById(R.id.email_register_button);
+        mEmailRegisterButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                // If the user already indicated that they were new, attempt the login
+                if(mUserIsNew){
+                    attemptLogin();
+                }else{
+                    // Otherwise change the view to registration
+                    userIsNew(true);
+                }
+            }
+        });
+
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+        mRegisterFormView = findViewById(R.id.email_register_form);
     }
 
+
+    // If userIsNew is true, hides the login button and shows the registration information.
+    // If userIsNew is false, reverses the effect.
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+    private void userIsNew(final boolean userIsNew) {
+        // If the global flag is not align with the new value, changes need be made
+        if(mUserIsNew != userIsNew){
+            // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
+            // for very easy animations. If available, use these APIs to fade-in
+            // the progress spinner.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+                int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+
+                mEmailSignInButton.setVisibility(userIsNew ? View.GONE : View.VISIBLE);
+                mEmailSignInButton.animate().setDuration(shortAnimTime).alpha(
+                        userIsNew ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        mEmailSignInButton.setVisibility(userIsNew ? View.GONE : View.VISIBLE);
+                    }
+                });
+
+                mRegisterFormView.setVisibility(userIsNew ? View.VISIBLE : View.GONE);
+                mRegisterFormView.animate().setDuration(shortAnimTime).alpha(
+                        userIsNew ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        mRegisterFormView.setVisibility(userIsNew ? View.VISIBLE : View.GONE);
+                    }
+                });
+            } else {
+                // The ViewPropertyAnimator APIs are not available, so simply show
+                // and hide the relevant UI components.
+                mRegisterFormView.setVisibility(userIsNew ? View.VISIBLE : View.GONE);
+                mEmailSignInButton.setVisibility(userIsNew ? View.GONE : View.VISIBLE);
+            }
+
+            // Update the global flag to indicate whether the user is new or not
+            mUserIsNew = userIsNew;
+        }
+
+    }
+
+
+    // For the AutoCompleteTextView layout. Email input.
     private void populateAutoComplete() {
         if (!mayRequestContacts()) {
             return;
@@ -151,6 +260,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         getLoaderManager().initLoader(0, null, this);
     }
 
+    // For the AutoCompleteTextView layout. Email input.
     private boolean mayRequestContacts() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             return true;
@@ -176,6 +286,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     /**
      * Callback received when a permissions request has been completed.
      */
+    // For the AutoCompleteTextView layout. Email input.
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
@@ -192,9 +303,44 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * If there are form errors (invalid email, missing fields, etc.), the
      * errors are presented and no actual login attempt is made.
      */
+    // Check all of the information the user submitted before attempting a remote login
     private void attemptLogin() {
         if (mAuthTask != null) {
             return;
+        }
+
+        boolean cancel = false;
+        View focusView = null;
+
+        // Store the user information so we can pass it to the Firebase
+        Map<String, String> userInformation = new HashMap<String, String>();
+
+        // Reset errors.
+        mFirstNameView.setError(null);
+        mLastNameView.setError(null);
+
+        // Store values at the time of the registration attempt.
+        String firstName = mFirstNameView.getText().toString();
+        userInformation.put("firstName", firstName);
+        String lastName = mLastNameView.getText().toString();
+        userInformation.put("lastName", lastName);
+
+        // Check for whether the user is new or not
+        if(mUserIsNew){
+
+            // Check for valid last name
+            if(TextUtils.isEmpty(lastName) || !isNameValid(lastName)){
+                mLastNameView.setError(getString(R.string.error_invalid_name));
+                focusView = mLastNameView;
+                cancel = true;
+            }
+
+            // Check for valid first name
+            if(TextUtils.isEmpty(firstName) || !isNameValid(firstName)){
+                mFirstNameView.setError(getString(R.string.error_invalid_name));
+                focusView = mFirstNameView;
+                cancel = true;
+            }
         }
 
         // Reset errors.
@@ -203,13 +349,12 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         // Store values at the time of the login attempt.
         String email = mEmailView.getText().toString();
+        userInformation.put("email", email);
         String password = mPasswordView.getText().toString();
-
-        boolean cancel = false;
-        View focusView = null;
+        userInformation.put("password", password);
 
         // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
+        if (TextUtils.isEmpty(password) || !isPasswordValid(password)) {
             mPasswordView.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
             cancel = true;
@@ -226,6 +371,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             cancel = true;
         }
 
+
         if (cancel) {
             // There was an error; don't attempt login and focus the first
             // form field with an error.
@@ -234,7 +380,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(email, password, this);
+            // No errors in the user's initial data. Attempt login with the database.
+            mAuthTask = new UserLoginTask(userInformation, this);
             mAuthTask.execute((Void) null);
         }
     }
@@ -249,9 +396,17 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         return password.length() > 4;
     }
 
+    private boolean isNameValid(String name) {
+        //TODO: Replace this with your own logic
+        // Ensure the name has only alphabetical characters
+        return name.matches("[a-zA-Z]+");
+    }
+
     /**
      * Shows the progress UI and hides the login form.
      */
+    // If show is true, hides the login information and shows the loading circle/bar.
+    // If show is false, reverses the effect.
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     private void showProgress(final boolean show) {
         // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
@@ -285,6 +440,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
     }
 
+    // Used to load emails for the autocomplete.
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         return new CursorLoader(this,
@@ -302,6 +458,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 ContactsContract.Contacts.Data.IS_PRIMARY + " DESC");
     }
 
+    // Used to load emails for the autocomplete.
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
         List<String> emails = new ArrayList<>();
@@ -314,11 +471,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         addEmailsToAutoComplete(emails);
     }
 
+    // Used to load emails for the autocomplete.
     @Override
     public void onLoaderReset(Loader<Cursor> cursorLoader) {
 
     }
 
+    // Used to load emails for the autocomplete.
     private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
         //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
         ArrayAdapter<String> adapter =
@@ -328,7 +487,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mEmailView.setAdapter(adapter);
     }
 
-
+    // Used to load emails for the autocomplete.
     private interface ProfileQuery {
         String[] PROJECTION = {
                 ContactsContract.CommonDataKinds.Email.ADDRESS,
@@ -343,55 +502,108 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
+    // Contacts FIREBASE and attempts to login or register a user.
     public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
         private final String mEmail;
         private final String mPassword;
+        private final String mFirstName;
+        private final String mLastName;
         private final Context mContext;
 
-        UserLoginTask(String email, String password, Context context) {
-            mEmail = email;
-            mPassword = password;
+        UserLoginTask(Map<String, String> userInformation, Context context) {
+            mEmail = userInformation.remove("email");
+            mPassword = userInformation.remove("password");
+            mFirstName = userInformation.remove("firstName");
+            mLastName = userInformation.remove("lastName");
             mContext = context;
         }
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
-            // START FIREBASE CODE
 
+            // Open Firebase
+            Firebase firebaseRef = new Firebase("https://fitnesspandora.firebaseio.com/");
 
+            // If the user is new, they need to register first
+            if(mUserIsNew){
+                // Attempt to register a new user
+                firebaseRef.createUser(mEmail, mPassword, new Firebase.ValueResultHandler<Map<String, Object>>() {
+                    @Override
+                    public void onSuccess(Map<String, Object> result) {
+                        Log.i("Firebase User Created", result.get("uid").toString());
 
-            // Attempt to log user in
-            Firebase attemptLogin = new Firebase("https://fitnesspandora.firebaseio.com/");
-            attemptLogin.authWithPassword(mEmail, mPassword, new Firebase.AuthResultHandler() {
-                @Override
-                public void onAuthenticated(AuthData authData) {
-                    System.out.println("User ID: " + authData.getUid() + ", Provider: " + authData.getProvider());
-                    mUserAuthenticated = true;
+                        // Initialize the user's data in Firebase
+                        Firebase newUserRef = new Firebase("https://fitnesspandora.firebaseio.com/users/" + result.get("uid"));
+                        newUser theNewUser = new newUser(mFirstName, mLastName, mEmail);
+                        newUserRef.setValue(theNewUser, new Firebase.CompletionListener() {
+                            @Override
+                            public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+                                if (firebaseError != null) {
+                                    // TODO User could be registered, but their data could not be initialized error?
+                                    Log.e("Firebase New Data Error", firebaseError.getDetails());
+                                    mFirebaseError = firebaseError.getCode();
+                                    mUserRegistered = false;
+                                } else {
+                                    Log.i("Firebase", "New user's data successfully initialized.");
+                                    mUserRegistered = true;
+                                }
+                            }
+                        });
+                    }
+                    @Override
+                    public void onError(FirebaseError firebaseError) {
+                        // there was an error
+                        Log.e("Firebase Register Error", firebaseError.getMessage() + firebaseError.getDetails());
+                        Log.e("Firebase Register Error", Integer.toString(firebaseError.getCode()));
+                        mFirebaseError = firebaseError.getCode();
+                        mUserRegistered = false;
+                    }
+                });
+
+                // Wait for the registration results
+                try {
+                    // Delay to simulate network access.
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    return false;
                 }
-
-                @Override
-                public void onAuthenticationError(FirebaseError firebaseError) {
-                    // there was an error
-                    Log.e("Firebase Login Error", firebaseError.getMessage() + firebaseError.getDetails());
-                    Log.e("Firebase Login Error", Integer.toString(firebaseError.getCode()));
-                    mFirebaseError = firebaseError.getCode();
-                    mUserAuthenticated = false;
-                }
-            });
-
-            try {
-                // Delay to simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                return false;
             }
 
+            // If the user is not new, or the user registered successfully,
+            if(!mUserIsNew || mUserRegistered){
 
+                // Attempt to log user in
+                firebaseRef.authWithPassword(mEmail, mPassword, new Firebase.AuthResultHandler() {
+                    @Override
+                    public void onAuthenticated(AuthData authData) {
+                        Log.i("Firebase", "User logged in successfully.");
+                        // Set the global auth token
+                        mAuthToken = authData.getToken();
+                        mAuthUID = authData.getUid();
+                        mUserAuthenticated = true;
+                    }
 
-            // TODO: register the new account here.
-            // END FIREBASE CODE
+                    @Override
+                    public void onAuthenticationError(FirebaseError firebaseError) {
+                        // there was an error
+                        Log.e("Firebase Login Error", firebaseError.getMessage() + firebaseError.getDetails());
+                        Log.e("Firebase Login Error", Integer.toString(firebaseError.getCode()));
+                        mFirebaseError = firebaseError.getCode();
+                        mUserAuthenticated = false;
+                    }
+                });
+
+                // TODO - Make the wait on the network a little better/faster
+                // Wait for the login results
+                try {
+                    // Delay to simulate network access.
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    return false;
+                }
+
+            }
 
             // Doesn't matter what we return here. Won't use it.
             return true;
@@ -404,14 +616,30 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
             // If doInBackground returns true,
             if (mUserAuthenticated) {
+                // Before closing the application, ensure the user's auth data is save or deleted
+                SharedPreferences userAuthData = getSharedPreferences("USER_AUTH_DATA", 0);
+                SharedPreferences.Editor editor = userAuthData.edit();
+                editor.putString("authToken", mAuthToken);
+                editor.putString("authUID", mAuthUID);
+                editor.commit();
+
+                Log.i("Firebase", "Saving UID:" + mAuthUID);
+                Log.i("Firebase", "Shared Pref" + userAuthData.getString("authUID", ""));
+
+                // Destroy the login activity
                 finish();
+
+                // Testing
+                mAuthToken = "";
+                mAuthUID = "";
 
                 // User authenticated, intent to start the main activity
                 Intent myIntent = new Intent(LoginActivity.this, MainActivity.class);
                 LoginActivity.this.startActivity(myIntent);
+
             } else {
                 // Figure out the error during the login
-                if(mFirebaseError == FirebaseError.INVALID_AUTH_ARGUMENTS || mFirebaseError == FirebaseError.INVALID_CREDENTIALS || mFirebaseError == FirebaseError.INVALID_EMAIL){
+                if(mFirebaseError == FirebaseError.INVALID_AUTH_ARGUMENTS || mFirebaseError == FirebaseError.INVALID_CREDENTIALS || mFirebaseError == FirebaseError.INVALID_EMAIL || mFirebaseError == FirebaseError.EMAIL_TAKEN){
                     mEmailView.setError(getString(R.string.error_invalid_email));
                     mEmailView.requestFocus();
                 }else if(mFirebaseError == FirebaseError.INVALID_PASSWORD){
