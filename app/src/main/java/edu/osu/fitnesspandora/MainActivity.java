@@ -1,10 +1,14 @@
 package edu.osu.fitnesspandora;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -18,6 +22,8 @@ public class MainActivity extends AppCompatActivity {
     // User's credentials from SharedPreferences
     private String mAuthToken;
     private String mAuthUID;
+
+    private boolean mIsLoggingOut = false;
 
     // UI references
     private TextView mWelcomeMessage;
@@ -67,17 +73,48 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        return true;
+    }
+
+
+    public void logoutUser(MenuItem item){
+        // User wants logged out. So set the auth information to null/empty and go back to login activity
+        mIsLoggingOut = true;
+
+        mAuthToken = "";
+        mAuthUID = "";
+
+        SharedPreferences userAuthData = getSharedPreferences("USER_AUTH_DATA", 0);
+        SharedPreferences.Editor editor = userAuthData.edit();
+        editor.remove("authToken");
+        editor.remove("authUID");
+        editor.commit();
+
+        // Destroy this activity
+        finish();
+        // User authenticated, intent to start the main activity
+        Intent myIntent = new Intent(MainActivity.this, LoginActivity.class);
+        MainActivity.this.startActivity(myIntent);
+    }
+
 
     @Override
     protected void onStop(){
         super.onStop();
 
-        // Before closing the application, ensure the user's auth data is save or deleted
-        SharedPreferences userAuthData = getSharedPreferences("USER_AUTH_DATA", 0);
-        SharedPreferences.Editor editor = userAuthData.edit();
-        editor.putString("authToken", mAuthToken);
-        editor.putString("authUID", mAuthUID);
-        editor.commit();
+        if(!mIsLoggingOut){
+            // Before closing the application, ensure the user's auth data is save or deleted
+            SharedPreferences userAuthData = getSharedPreferences("USER_AUTH_DATA", 0);
+            SharedPreferences.Editor editor = userAuthData.edit();
+            editor.putString("authToken", mAuthToken);
+            editor.putString("authUID", mAuthUID);
+            editor.commit();
+        }
+
     }
 
 }
