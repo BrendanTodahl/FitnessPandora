@@ -18,4 +18,13 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+
+    <!-- Strings related to Main Hub Screen -->
+    <string name="workout_button">Workouts</string>
+
+    <!-- Strings related to Workout Screen -->
+    <string name="upper_body">Upper Body</string>
+    <string name="lower_body">Lower Body</string>
+    <string name="mats">Mat Exercises</string>
+    <string name="cardio">Cardio</string>
 </resources>

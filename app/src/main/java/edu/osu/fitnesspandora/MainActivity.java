@@ -9,6 +9,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -27,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
 
     // UI references
     private TextView mWelcomeMessage;
+    private Button mWorkoutButton;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -68,7 +71,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
+        // Workout button press
+        mWorkoutButton = (Button)findViewById(R.id.workout_button);
+        mWorkoutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent workOutIntent = new Intent(MainActivity.this, WorkoutActivity.class);
+                startActivity(workOutIntent);
+            }
+        });
 
 
     }
@@ -78,6 +89,11 @@ public class MainActivity extends AppCompatActivity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu, menu);
         return true;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
     }
 
 
@@ -100,7 +116,6 @@ public class MainActivity extends AppCompatActivity {
         Intent myIntent = new Intent(MainActivity.this, LoginActivity.class);
         MainActivity.this.startActivity(myIntent);
     }
-
 
     @Override
     protected void onStop(){
