@@ -207,6 +207,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mRegisterFormView = findViewById(R.id.email_register_form);
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+
 
     // If userIsNew is true, hides the login button and shows the registration information.
     // If userIsNew is false, reverses the effect.

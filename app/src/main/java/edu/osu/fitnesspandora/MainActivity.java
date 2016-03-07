@@ -96,6 +96,11 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
+
 
     public void logoutUser(MenuItem item){
         // User wants logged out. So set the auth information to null/empty and go back to login activity
