@@ -52,6 +52,8 @@ import static android.Manifest.permission.READ_CONTACTS;
  */
 public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
 
+    private String TAG = this.getClass().getSimpleName();
+
     /**
      * Id to identity READ_CONTACTS permission request.
      */
@@ -111,6 +113,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.i(TAG, "Lifecycle method onCreate() triggered");
 
         // Restore preferences
         SharedPreferences userAuthData = getSharedPreferences("USER_AUTH_DATA", 0);
@@ -210,6 +213,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     @Override
     public void onDestroy() {
         super.onDestroy();
+        Log.i(TAG, "Lifecycle method onDestroy() triggered");
     }
 
 

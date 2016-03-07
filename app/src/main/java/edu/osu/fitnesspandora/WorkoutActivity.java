@@ -25,6 +25,7 @@ public class WorkoutActivity extends AppCompatActivity implements View.OnClickLi
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.i(TAG, "Lifecycle method onCreate() triggered");
         setContentView(R.layout.activity_workout);
 
         // Get references to UI Buttons
@@ -67,6 +68,6 @@ public class WorkoutActivity extends AppCompatActivity implements View.OnClickLi
 
     public void logoutUser(MenuItem item){
         // Handle user logging out
-        Log.d(TAG, "Logout button pushed from menu");
+        Log.i(TAG, "Logout button pushed from menu");
     }
 }

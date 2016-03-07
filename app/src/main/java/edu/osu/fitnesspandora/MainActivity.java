@@ -21,6 +21,8 @@ import com.firebase.client.ValueEventListener;
 
 public class MainActivity extends AppCompatActivity {
 
+    private String TAG = this.getClass().getSimpleName();
+
     // User's credentials from SharedPreferences
     private String mAuthToken;
     private String mAuthUID;
@@ -34,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.i(TAG, "Lifecycle method onCreate() triggered");
 
         // Restore preferences
         SharedPreferences userAuthData = getSharedPreferences("USER_AUTH_DATA", 0);
@@ -94,11 +97,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
+        Log.i(TAG, "Lifecycle method onResume() triggered");
     }
 
     @Override
     public void onPause() {
         super.onPause();
+        Log.i(TAG, "Lifecycle method onPause() triggered");
     }
 
 
@@ -125,6 +130,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop(){
         super.onStop();
+        Log.i(TAG, "Lifecycle method onStop() triggered");
 
         if(!mIsLoggingOut){
             // Before closing the application, ensure the user's auth data is save or deleted
