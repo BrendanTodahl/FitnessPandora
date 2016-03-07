@@ -9,6 +9,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -19,6 +21,8 @@ import com.firebase.client.ValueEventListener;
 
 public class MainActivity extends AppCompatActivity {
 
+    private String TAG = this.getClass().getSimpleName();
+
     // User's credentials from SharedPreferences
     private String mAuthToken;
     private String mAuthUID;
@@ -27,10 +31,12 @@ public class MainActivity extends AppCompatActivity {
 
     // UI references
     private TextView mWelcomeMessage;
+    private Button mWorkoutButton;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.i(TAG, "Lifecycle method onCreate() triggered");
 
         // Restore preferences
         SharedPreferences userAuthData = getSharedPreferences("USER_AUTH_DATA", 0);
@@ -68,7 +74,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
+        // Workout button press
+        mWorkoutButton = (Button)findViewById(R.id.workout_button);
+        mWorkoutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent workOutIntent = new Intent(MainActivity.this, WorkoutActivity.class);
+                startActivity(workOutIntent);
+            }
+        });
 
 
     }
@@ -78,6 +92,18 @@ public class MainActivity extends AppCompatActivity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu, menu);
         return true;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.i(TAG, "Lifecycle method onResume() triggered");
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.i(TAG, "Lifecycle method onPause() triggered");
     }
 
 
@@ -101,10 +127,10 @@ public class MainActivity extends AppCompatActivity {
         MainActivity.this.startActivity(myIntent);
     }
 
-
     @Override
     protected void onStop(){
         super.onStop();
+        Log.i(TAG, "Lifecycle method onStop() triggered");
 
         if(!mIsLoggingOut){
             // Before closing the application, ensure the user's auth data is save or deleted
