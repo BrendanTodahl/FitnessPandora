@@ -24,8 +24,7 @@ public class MainActivity extends AppCompatActivity {
     private String TAG = this.getClass().getSimpleName();
 
     // User's credentials from SharedPreferences
-    private String mAuthToken;
-    private String mAuthUID;
+    private User mUser;
 
     private boolean mIsLoggingOut = false;
 
@@ -42,19 +41,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Log.i(TAG, "Lifecycle method onCreate() triggered");
 
-        // Restore preferences
-        SharedPreferences userAuthData = getSharedPreferences("USER_AUTH_DATA", 0);
-        mAuthToken = userAuthData.getString("authToken", "");
-        mAuthUID = userAuthData.getString("authUID", "");
+        // Initialize the user's credentials
+        mUser = User.get(this);
 
         // Initialize Firebase with the context
         Firebase.setAndroidContext(this);
 
         // Open Firebase
-        Log.i("Firebase", "Shared Pref" + userAuthData.getString("authUID", ""));
-        Log.i("Firebase", "Extracting UID: " + mAuthUID);
-        Firebase firebaseUserRef = new Firebase("https://fitnesspandora.firebaseio.com/users/" + mAuthUID + "/");
-
+        Firebase firebaseUserRef = new Firebase("https://fitnesspandora.firebaseio.com/users/" + mUser.getAuthUID() + "/");
 
         setContentView(R.layout.activity_main);
 
@@ -119,14 +113,7 @@ public class MainActivity extends AppCompatActivity {
         // User wants logged out. So set the auth information to null/empty and go back to login activity
         mIsLoggingOut = true;
 
-        mAuthToken = "";
-        mAuthUID = "";
-
-        SharedPreferences userAuthData = getSharedPreferences("USER_AUTH_DATA", 0);
-        SharedPreferences.Editor editor = userAuthData.edit();
-        editor.remove("authToken");
-        editor.remove("authUID");
-        editor.commit();
+        mUser.logout(this);
 
         // Destroy this activity
         finish();
@@ -141,12 +128,7 @@ public class MainActivity extends AppCompatActivity {
         Log.i(TAG, "Lifecycle method onStop() triggered");
 
         if(!mIsLoggingOut){
-            // Before closing the application, ensure the user's auth data is save or deleted
-            SharedPreferences userAuthData = getSharedPreferences("USER_AUTH_DATA", 0);
-            SharedPreferences.Editor editor = userAuthData.edit();
-            editor.putString("authToken", mAuthToken);
-            editor.putString("authUID", mAuthUID);
-            editor.commit();
+            mUser.saveUser(this);
         }
 
     }

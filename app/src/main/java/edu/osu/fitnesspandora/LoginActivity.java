@@ -75,8 +75,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private AuthData mAuthData;
 
     // User's credentials from SharedPreferences
-    private String mAuthToken;
-    private String mAuthUID;
+    private User mUser;
 
     // UI references.
     private AutoCompleteTextView mEmailView;
@@ -115,20 +114,17 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         super.onCreate(savedInstanceState);
         Log.i(TAG, "Lifecycle method onCreate() triggered");
 
-        // Restore preferences
-        SharedPreferences userAuthData = getSharedPreferences("USER_AUTH_DATA", 0);
-        mAuthToken = userAuthData.getString("authToken", "");
-        mAuthUID = userAuthData.getString("authUID", "");
+        mUser = User.get(this);
 
         // Initialize Firebase with the context
         Firebase.setAndroidContext(this);
 
         // If the saved auth token isn't empty string,
-        if(mAuthToken.length() > 0){
+        if(mUser.getAuthToken().length() > 0){
             mUserAuthenticated = true;
             // Attempt to log in user first
             Firebase firebaseUserRef = new Firebase("https://fitnesspandora.firebaseio.com/");
-            firebaseUserRef.authWithCustomToken(mAuthToken, new Firebase.AuthResultHandler() {
+            firebaseUserRef.authWithCustomToken(mUser.getAuthToken(), new Firebase.AuthResultHandler() {
                 @Override
                 public void onAuthenticated(AuthData authData) {
                     // Token is good. User's information must already be stored. Proceed to main activity.
@@ -588,8 +584,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     public void onAuthenticated(AuthData authData) {
                         Log.i("Firebase", "User logged in successfully.");
                         // Set the global auth token
-                        mAuthToken = authData.getToken();
-                        mAuthUID = authData.getUid();
+                        mUser.setAuthToken(authData.getToken());
+                        mUser.setAuthUID(authData.getUid());
                         mUserAuthenticated = true;
                     }
 
@@ -625,22 +621,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
             // If doInBackground returns true,
             if (mUserAuthenticated) {
-                // Before closing the application, ensure the user's auth data is save or deleted
-                SharedPreferences userAuthData = getSharedPreferences("USER_AUTH_DATA", 0);
-                SharedPreferences.Editor editor = userAuthData.edit();
-                editor.putString("authToken", mAuthToken);
-                editor.putString("authUID", mAuthUID);
-                editor.commit();
 
-                Log.i("Firebase", "Saving UID:" + mAuthUID);
-                Log.i("Firebase", "Shared Pref" + userAuthData.getString("authUID", ""));
+                mUser.saveUser(this.mContext);
+
+                Log.i("Firebase", "Saving UID:" + mUser.getAuthUID());
 
                 // Destroy the login activity
                 finish();
-
-                // Testing
-                mAuthToken = "";
-                mAuthUID = "";
 
                 // User authenticated, intent to start the main activity
                 Intent myIntent = new Intent(LoginActivity.this, MainActivity.class);
