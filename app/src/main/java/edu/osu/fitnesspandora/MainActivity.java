@@ -19,6 +19,8 @@ import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity {
 
     private String TAG = this.getClass().getSimpleName();
@@ -28,6 +30,9 @@ public class MainActivity extends AppCompatActivity {
     private String mAuthUID;
 
     private boolean mIsLoggingOut = false;
+
+    // Initialize data from Firebase
+    private ArrayList<Workout> mWorkouts;
 
     // UI references
     private TextView mWelcomeMessage;
@@ -84,6 +89,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+        Log.i("Firebase", "Starting workout load in.");
+        // Initialize data from Firebase
+        mWorkouts = WorkoutLab.get(this).getWorkouts();
+        Log.i("Firebase", "Ended workout load in.");
 
     }
 
