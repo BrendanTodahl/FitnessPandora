@@ -12,12 +12,10 @@ public class User {
     private static User sUser = null;
 
     private User(Context c){
-
         // Restore preferences
         SharedPreferences userAuthData = c.getSharedPreferences("USER_AUTH_DATA", 0);
         mAuthToken = userAuthData.getString("authToken", "");
         mAuthUID = userAuthData.getString("authUID", "");
-
     }
 
     public static User get(Context c){

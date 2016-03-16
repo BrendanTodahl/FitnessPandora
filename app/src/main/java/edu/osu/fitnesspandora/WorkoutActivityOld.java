@@ -1,5 +1,5 @@
 package edu.osu.fitnesspandora;
-
+/*
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -81,3 +81,4 @@ public class WorkoutActivityOld extends AppCompatActivity implements View.OnClic
         Log.i(TAG, "Logout button pushed from menu");
     }
 }
+*/

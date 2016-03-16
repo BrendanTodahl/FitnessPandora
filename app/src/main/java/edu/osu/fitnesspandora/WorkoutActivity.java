@@ -26,6 +26,8 @@ public class WorkoutActivity  extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        setContentView(R.layout.activity_workout);
+
         setTitle("Workout");
 
         mWorkout = WorkoutLab.get().getWorkout((String) getIntent().getSerializableExtra(EXTRA_WORKOUT_TITLE));
