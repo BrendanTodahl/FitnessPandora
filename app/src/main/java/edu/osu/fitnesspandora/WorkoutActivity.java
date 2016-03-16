@@ -1,14 +1,20 @@
 package edu.osu.fitnesspandora;
 
 import android.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 
-public class WorkoutActivity extends SingleFragmentActivity  {
+import java.util.ArrayList;
 
-    @Override
-    protected Fragment createFragment() {
-        return new WorkoutListFragment();
-    }
+public class WorkoutActivity  extends AppCompatActivity {
+
+    private Workout mWorkout;
+    private ArrayList<Exercise> mExercises;
+
+
+
+
+
 
 
 }

@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+
+// SINGLETON for all workout types
 public class WorkoutLab {
 
     private ArrayList<Workout> mWorkouts;
@@ -25,9 +27,7 @@ public class WorkoutLab {
         mWorkouts = new ArrayList<Workout>();
 
         // Get workouts from Firebase
-
         Log.i("Firebase", "Starting loading Workouts.");
-
         Firebase firebaseWorkoutRef = new Firebase("https://fitnesspandora.firebaseio.com/workouts/");
         firebaseWorkoutRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -57,7 +57,6 @@ public class WorkoutLab {
                 System.out.println("The read failed: " + firebaseError.getMessage());
             }
         });
-
     }
 
     public static WorkoutLab get(){
@@ -77,5 +76,4 @@ public class WorkoutLab {
         }
         return null;
     }
-
 }

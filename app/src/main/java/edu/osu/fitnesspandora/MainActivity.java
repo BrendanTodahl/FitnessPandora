@@ -1,6 +1,5 @@
 package edu.osu.fitnesspandora;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -11,7 +10,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import com.firebase.client.DataSnapshot;
@@ -33,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
 
     // Initialize data from Firebase
     private ArrayList<Workout> mWorkouts;
+    private ArrayList<Exercise> mExercises;
 
     // UI references
     private TextView mWelcomeMessage;
@@ -84,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
         mWorkoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent workOutIntent = new Intent(MainActivity.this, WorkoutActivity.class);
+                Intent workOutIntent = new Intent(MainActivity.this, WorkoutListActivity.class);
                 startActivity(workOutIntent);
             }
         });
@@ -92,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize data from Firebase
         mWorkouts = WorkoutLab.get().getWorkouts();
-
+        mExercises = ExerciseLab.get().getExercises();
 
     }
 

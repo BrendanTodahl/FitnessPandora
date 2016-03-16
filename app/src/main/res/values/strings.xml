@@ -20,7 +20,7 @@
     </string>
 
     <!-- Strings related to Main Hub Screen -->
-    <string name="workout_button">Workouts</string>
+    <string name="workout_button">Workout</string>
 
     <!-- Strings related to Workout Screen -->
     <string name="upper_body">Upper Body</string>

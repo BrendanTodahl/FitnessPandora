@@ -23,7 +23,7 @@ public class WorkoutListFragment extends ListFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getActivity().setTitle("Workouts");
+        getActivity().setTitle("Select Workout");
 
         mWorkouts = WorkoutLab.get().getWorkouts();
 
