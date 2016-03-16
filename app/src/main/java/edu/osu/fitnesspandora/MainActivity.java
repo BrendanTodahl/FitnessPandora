@@ -90,10 +90,9 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        Log.i("Firebase", "Starting workout load in.");
         // Initialize data from Firebase
-        mWorkouts = WorkoutLab.get(this).getWorkouts();
-        Log.i("Firebase", "Ended workout load in.");
+        mWorkouts = WorkoutLab.get().getWorkouts();
+
 
     }
 

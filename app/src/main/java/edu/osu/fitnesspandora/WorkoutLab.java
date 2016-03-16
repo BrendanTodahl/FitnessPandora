@@ -18,33 +18,25 @@ public class WorkoutLab {
 
     private ArrayList<Workout> mWorkouts;
 
-    private static WorkoutLab sWorkoutLab;
-    private Context mAppContext;
+    private static WorkoutLab sWorkoutLab = null;
 
-    private WorkoutLab(Context appContext){
-
-        mAppContext = appContext;
+    private WorkoutLab(){
 
         mWorkouts = new ArrayList<Workout>();
 
         // Get workouts from Firebase
 
-        // TESTING WORKOUTS
+        Log.i("Firebase", "Starting loading Workouts.");
+
         Firebase firebaseWorkoutRef = new Firebase("https://fitnesspandora.firebaseio.com/workouts/");
         firebaseWorkoutRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
                 if (snapshot.getValue() != null) {
-                    Log.i("Firebase Workouts", snapshot.getValue().toString());
-                    Log.i("Firebase Workouts", snapshot.child("full_body").getValue().toString());
-
-
                     // For each workout,
                     for(DataSnapshot workoutSnapshotRaw : snapshot.getChildren()){
-
                         Workout workout = new Workout();
-
-                        // For each of the workout's arrtibutes,
+                        // For each of the workout's attributes,
                         for(DataSnapshot workoutSnapshot : workoutSnapshotRaw.getChildren()){
                             if(workoutSnapshot.getKey().equals("workoutExerciseIDs")){
                                 workout.setWorkoutExerciseIDs((ArrayList<Integer>) workoutSnapshot.getValue());
@@ -52,12 +44,10 @@ public class WorkoutLab {
                                 workout.setWorkoutTitle((String) workoutSnapshot.getValue());
                             }
                         }
-
+                        // Add the workout
+                        mWorkouts.add(workout);
                         Log.i("Firebase", "Added new workout: " + workout + " with eids: " + workout.getWorkoutExerciseIDs());
                     }
-
-
-
                 } else {
                     Log.e("Firebase", snapshot.toString());
                 }
@@ -68,19 +58,11 @@ public class WorkoutLab {
             }
         });
 
-        // TODO - Make the wait on the network a little better/faster
-        // Wait for the data to load in
-        try {
-            // Delay to simulate network access.
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-        }
-
     }
 
-    public static WorkoutLab get(Context c){
+    public static WorkoutLab get(){
         if(sWorkoutLab == null){
-            sWorkoutLab = new WorkoutLab(c.getApplicationContext());
+            sWorkoutLab = new WorkoutLab();
         }
         return sWorkoutLab;
     }
