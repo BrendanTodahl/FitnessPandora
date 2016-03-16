@@ -39,29 +39,24 @@ public class WorkoutLab {
                     Log.i("Firebase Workouts", snapshot.child("full_body").getValue().toString());
 
 
+                    // For each workout,
                     for(DataSnapshot workoutSnapshotRaw : snapshot.getChildren()){
 
+                        Workout workout = new Workout();
+
+                        // For each of the workout's arrtibutes,
                         for(DataSnapshot workoutSnapshot : workoutSnapshotRaw.getChildren()){
-                            Log.i("Firebase workout1", workoutSnapshot.getKey().toString());
-                            Log.i("Firebase workout1", workoutSnapshot.getValue().toString());
                             if(workoutSnapshot.getKey().equals("workoutExerciseIDs")){
-                                ArrayList<Integer> testAL = (ArrayList<Integer>) workoutSnapshot.getValue();
-                                Log.i("TESTAL", testAL.toString());
+                                workout.setWorkoutExerciseIDs((ArrayList<Integer>) workoutSnapshot.getValue());
+                            }else if(workoutSnapshot.getKey().equals("workoutTitle")){
+                                workout.setWorkoutTitle((String) workoutSnapshot.getValue());
                             }
                         }
 
-
-
+                        Log.i("Firebase", "Added new workout: " + workout + " with eids: " + workout.getWorkoutExerciseIDs());
                     }
 
-                    /*
-                    Map<String, Map<String, Map<String, Object>>> allFBWorkoutsRaw = (Map<String, Map<String, Map<String, Object>>>) snapshot.getValue();
-                    List<Map.Entry<String, Map<String, Map<String, Object>>>> allFBWorkouts = new ArrayList<Map.Entry<String, Map<String, Map<String, Object>>>>();
-                    allFBWorkouts.addAll(allFBWorkoutsRaw.entrySet());
-                    for(Map.Entry<String, Map<String, Map<String, Object>>> entry : allFBWorkouts){
-                        Log.i("Firebase Workout name", entry.getValue().)
-                    }
-*/
+
 
                 } else {
                     Log.e("Firebase", snapshot.toString());

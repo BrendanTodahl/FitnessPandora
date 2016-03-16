@@ -20,15 +20,15 @@ public class Workout {
     public String getWorkoutTitle() {
         return workoutTitle;
     }
-    public void setWorkoutTitle(String workoutTitle) {
-        workoutTitle = workoutTitle;
+    public void setWorkoutTitle(String newWorkoutTitle) {
+        workoutTitle = newWorkoutTitle;
     }
 
     public ArrayList<Integer> getWorkoutExerciseIDs() {
         return workoutExerciseIDs;
     }
-    public void setWorkoutExerciseIDs(ArrayList<Integer> workoutExerciseIDs) {
-        workoutExerciseIDs = workoutExerciseIDs;
+    public void setWorkoutExerciseIDs(ArrayList<Integer> newWorkoutExerciseIDs) {
+        workoutExerciseIDs = newWorkoutExerciseIDs;
     }
 
     @Override
