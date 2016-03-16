@@ -34,6 +34,10 @@
             android:label="@string/app_name">
         </activity>
         <activity
+            android:name=".WorkoutActivity"
+            android:label="@string/app_name">
+        </activity>
+        <activity
             android:name=".UpperBodyActivity"
             android:label="@string/title_activity_upper_body"
             android:theme="@style/AppTheme.NoActionBar">

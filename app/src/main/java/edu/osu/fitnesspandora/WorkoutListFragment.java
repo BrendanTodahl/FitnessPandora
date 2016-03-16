@@ -35,12 +35,10 @@ public class WorkoutListFragment extends ListFragment {
     public void onListItemClick(ListView l, View v, int position, long id) {
         Workout w = ((WorkoutAdapter)getListAdapter()).getItem(position);
 
-        // TODO
-        // Start WorkoutPagerActivity with this Workout
-        //Intent i = new Intent(getActivity(), WorkoutPagerActivity.class);
-
-        //i.putExtra(WorkoutFragment.EXTRA_Workout_ID, c.getId());
-        //startActivity(i);
+        // Start a Workout with the selected workout
+        Intent i = new Intent(getActivity(), WorkoutActivity.class);
+        i.putExtra(WorkoutActivity.EXTRA_WORKOUT_TITLE, w.getWorkoutTitle());
+        startActivity(i);
 
     }
 
