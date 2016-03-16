@@ -27,4 +27,6 @@
     <string name="lower_body">Lower Body</string>
     <string name="mats">Mat Exercises</string>
     <string name="cardio">Cardio</string>
+    <string name="title_activity_upper_body">UpperBodyActivity</string>
+    <string name="title_activity_lower_body">LowerBodyActivity</string>
 </resources>

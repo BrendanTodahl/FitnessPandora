@@ -30,9 +30,21 @@ public class WorkoutActivity extends AppCompatActivity implements View.OnClickLi
 
         // Get references to UI Buttons
         mUpperBodyButton = (Button)findViewById(R.id.upper_body_button);
-        mUpperBodyButton.setOnClickListener(this);
+        mUpperBodyButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent upperIntent = new Intent(WorkoutActivity.this, UpperBodyActivity.class);
+                startActivity(upperIntent);
+            }
+        });
         mLowerBodyButton = (Button)findViewById(R.id.lower_body_button);
-        mLowerBodyButton.setOnClickListener(this);
+        mLowerBodyButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                Intent lowerIntent = new Intent(WorkoutActivity.this,LowerBodyActivity.class);
+                startActivity(lowerIntent);
+            }
+        });
         mMatButton = (Button)findViewById(R.id.mats_button);
         mMatButton.setOnClickListener(this);
         mCardioButton = (Button)findViewById(R.id.cardio_button);
