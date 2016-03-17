@@ -12,14 +12,17 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.firebase.client.Firebase;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.UUID;
 
 public class WorkoutActivity  extends AppCompatActivity {
 
-    public static final String EXTRA_WORKOUT_TITLE =
-            "com.bignerdranch.android.criminalintent.workout_title";
+    public static final String EXTRA_WORKOUT_ID =
+            "com.bignerdranch.android.criminalintent.workout_id";
 
     private User mUser;
     private ArrayList<Exercise> mExercises;
@@ -38,13 +41,13 @@ public class WorkoutActivity  extends AppCompatActivity {
 
         setContentView(R.layout.activity_workout);
 
-        setTitle("Workout");
-
         // Get the one workout the user has selected to do
-        mWorkout = WorkoutLab.get().getWorkout((String) getIntent().getSerializableExtra(EXTRA_WORKOUT_TITLE));
+        mWorkout = WorkoutLab.get().getWorkout((int) getIntent().getSerializableExtra(EXTRA_WORKOUT_ID));
         // Get our required data
         mUser = User.get(this);
         mExercises = ExerciseLab.get().getExercises();
+
+        setTitle(mWorkout.getWorkoutTitle() + " Workout");
 
         // Attach to the layout
         mExerciseTitle = (TextView) findViewById(R.id.exercise_title);
@@ -118,6 +121,24 @@ public class WorkoutActivity  extends AppCompatActivity {
 
     private void nextExercise(boolean userLikes){
 
+        // TODO ADD DISLIKE - SKIP - LIKES
+        int score = 0;
+        if(userLikes){
+            score = 1;
+        }else{
+            score = -1;
+        }
+
+        // Make the new exercise log for the user
+        // Date will be in raw milliseconds. PREFERRED
+        ExerciseLog newExerciseLog = new ExerciseLog(new Date().getTime(), mExercises.get(mCurrentExerciseIndex).getExerciseID(), mWorkout.getWorkoutID(), score);
+
+        // Add the exercise log to the users account
+        Firebase firebaseRef = new Firebase(getString(R.string.firebase_url) + "users/" + mUser.getAuthUID() + "/exerciseLog");
+        Firebase newLogRef = firebaseRef.push();
+        newLogRef.setValue(newExerciseLog);
+
+
         mCurrentExerciseIndex++;
         // If the end of the exercises has been reached, roll back to zero
         if(mCurrentExerciseIndex >= mExercises.size()){
@@ -129,11 +150,7 @@ public class WorkoutActivity  extends AppCompatActivity {
         mExerciseTitle.setText(newExercise.getExerciseTitle());
         mExerciseInstructions.setText("This is how you do this trivially easy and understandable exercises...");
 
-        if(userLikes){
-            // TODO Edit Firebase and log the users like
-        }else{
-            // TODO Edit Firebase and log the users dislike
-        }
+
 
 
     }

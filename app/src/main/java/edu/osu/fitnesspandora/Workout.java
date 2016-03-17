@@ -6,6 +6,7 @@ import java.util.ArrayList;
 public class Workout {
 
     private String workoutTitle;
+    private int workoutID;
     private ArrayList<Integer> workoutExerciseIDs;
 
     public Workout() {
@@ -29,6 +30,13 @@ public class Workout {
     }
     public void setWorkoutExerciseIDs(ArrayList<Integer> newWorkoutExerciseIDs) {
         workoutExerciseIDs = newWorkoutExerciseIDs;
+    }
+
+    public int getWorkoutID() {
+        return workoutID;
+    }
+    public void setWorkoutID(int workoutID) {
+        this.workoutID = workoutID;
     }
 
     @Override

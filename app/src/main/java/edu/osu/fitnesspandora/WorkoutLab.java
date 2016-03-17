@@ -40,6 +40,8 @@ public class WorkoutLab {
                         for(DataSnapshot workoutSnapshot : workoutSnapshotRaw.getChildren()){
                             if(workoutSnapshot.getKey().equals("workoutExerciseIDs")){
                                 workout.setWorkoutExerciseIDs((ArrayList<Integer>) workoutSnapshot.getValue());
+                            }else if(workoutSnapshot.getKey().equals("workoutID")){
+                                workout.setWorkoutID(Math.round((Long) workoutSnapshot.getValue()));
                             }else if(workoutSnapshot.getKey().equals("workoutTitle")){
                                 workout.setWorkoutTitle((String) workoutSnapshot.getValue());
                             }
@@ -68,9 +70,9 @@ public class WorkoutLab {
 
     public ArrayList<Workout> getWorkouts(){ return mWorkouts; }
 
-    public Workout getWorkout(String workoutTitle){
+    public Workout getWorkout(int workoutID){
         for (Workout w : mWorkouts){
-            if(w.getWorkoutTitle().equals(workoutTitle)){
+            if(w.getWorkoutID() == workoutID){
                 return w;
             }
         }

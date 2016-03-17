@@ -37,7 +37,7 @@ public class WorkoutListFragment extends ListFragment {
 
         // Start a Workout with the selected workout
         Intent i = new Intent(getActivity(), WorkoutActivity.class);
-        i.putExtra(WorkoutActivity.EXTRA_WORKOUT_TITLE, w.getWorkoutTitle());
+        i.putExtra(WorkoutActivity.EXTRA_WORKOUT_ID, w.getWorkoutID());
         startActivity(i);
 
     }
