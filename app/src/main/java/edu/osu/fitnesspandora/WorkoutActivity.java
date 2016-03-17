@@ -1,85 +1,160 @@
 package edu.osu.fitnesspandora;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.support.v7.app.AppCompatActivity;
+import android.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
-public class WorkoutActivity extends AppCompatActivity implements View.OnClickListener {
+import com.firebase.client.Firebase;
 
-    private String TAG = this.getClass().getSimpleName();
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.UUID;
 
-    // UI elements
-    private Button mUpperBodyButton;
-    private Button mLowerBodyButton;
-    private Button mMatButton;
-    private Button mCardioButton;
+public class WorkoutActivity  extends AppCompatActivity {
+
+    public static final String EXTRA_WORKOUT_ID =
+            "com.bignerdranch.android.criminalintent.workout_id";
+
+    private User mUser;
+    private ArrayList<Exercise> mExercises;
+    private Workout mWorkout;
+
+    private TextView mExerciseTitle;
+    private TextView mExerciseInstructions;
+    private Button mSkipButton;
+    private Button mLikeButton;
+
+    private int mCurrentExerciseIndex;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.i(TAG, "Lifecycle method onCreate() triggered");
+
         setContentView(R.layout.activity_workout);
 
-        // Get references to UI Buttons
-        mUpperBodyButton = (Button)findViewById(R.id.upper_body_button);
-        mUpperBodyButton.setOnClickListener(new View.OnClickListener() {
+        // Get the one workout the user has selected to do
+        mWorkout = WorkoutLab.get().getWorkout((int) getIntent().getSerializableExtra(EXTRA_WORKOUT_ID));
+        // Get our required data
+        mUser = User.get(this);
+        mExercises = ExerciseLab.get().getExercises();
+
+        setTitle(mWorkout.getWorkoutTitle() + " Workout");
+
+        // Attach to the layout
+        mExerciseTitle = (TextView) findViewById(R.id.exercise_title);
+        mExerciseInstructions = (TextView) findViewById(R.id.exercise_instructions);
+        mSkipButton = (Button) findViewById(R.id.button_skip);
+        mLikeButton = (Button) findViewById(R.id.button_like);
+
+        // TODO Read the index back from bundle state save
+
+        // Build the priority exercise queue
+        buildExercisePriorityQueue();
+        // Initialize the first exercise
+        mCurrentExerciseIndex = 0;
+        Exercise newExercise = mExercises.get(mCurrentExerciseIndex);
+        mExerciseTitle.setText(newExercise.getExerciseTitle());
+        mExerciseInstructions.setText("This is how you do this trivially easy and understandable exercises...");
+
+        // Setup the button responses
+        mSkipButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                Intent upperIntent = new Intent(WorkoutActivity.this, UpperBodyActivity.class);
-                startActivity(upperIntent);
+                // The user dislikes the exercise
+                nextExercise(false);
             }
         });
-        mLowerBodyButton = (Button)findViewById(R.id.lower_body_button);
-        mLowerBodyButton.setOnClickListener(new View.OnClickListener(){
+        mLikeButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                Intent lowerIntent = new Intent(WorkoutActivity.this,LowerBodyActivity.class);
-                startActivity(lowerIntent);
+                // The user likes the exercise
+                nextExercise(true);
             }
         });
-        mMatButton = (Button)findViewById(R.id.mats_button);
-        mMatButton.setOnClickListener(this);
-        mCardioButton = (Button)findViewById(R.id.cardio_button);
-        mCardioButton.setOnClickListener(this);
+
+
+
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = super.getMenuInflater();
-        inflater.inflate(R.menu.menu, menu);
-        return true;
-    }
 
-    // User has selected the type of workout they wish to attempt
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.upper_body_button:
-                Log.d(TAG, "Upper Body button pressed");
-                break;
-            case R.id.lower_body_button:
-                Log.d(TAG, "Lower Body button pressed");
-                break;
-            case R.id.mats_button:
-                Log.d(TAG, "Mats button pressed");
-                break;
-            case R.id.cardio_button:
-                Log.d(TAG, "Cardio button pressed");
-                break;
-            default:
-                break;
+
+
+
+    // EXERCISE SELECTION ALGORITHMS
+
+    // Alter mExercises so the lower indices are the exercises up next
+    private void buildExercisePriorityQueue(){
+
+        // TODO Make this waaaaaaay better.
+
+        ArrayList<Exercise> exercisePriorityQueue = new ArrayList<Exercise>();
+        ArrayList<Exercise> exerciseBadQueue = new ArrayList<Exercise>();
+
+        // Get all exercises that are linked to the current workout
+        for(int i =0; i < mExercises.size(); i++){
+            Exercise tempExercise = mExercises.get(i);
+            if(mWorkout.getWorkoutExerciseIDs().contains(tempExercise.getExerciseID())){
+                exercisePriorityQueue.add(tempExercise);
+            }else{
+                exerciseBadQueue.add(tempExercise);
+            }
         }
+
+        // Now add all of the bad exercises to the tail of the priority queue
+        for(Exercise e : exerciseBadQueue){
+            exercisePriorityQueue.add(e);
+        }
+
+        // Now set the current set of exercises to the priority queue
+        mExercises = exercisePriorityQueue;
+
     }
 
-    public void logoutUser(MenuItem item){
-        // Handle user logging out
-        Log.i(TAG, "Logout button pushed from menu");
+    private void nextExercise(boolean userLikes){
+
+        // TODO ADD DISLIKE - SKIP - LIKES
+        int score = 0;
+        if(userLikes){
+            score = 1;
+        }else{
+            score = -1;
+        }
+
+        // Make the new exercise log for the user
+        // Date will be in raw milliseconds. PREFERRED
+        ExerciseLog newExerciseLog = new ExerciseLog(new Date().getTime(), mExercises.get(mCurrentExerciseIndex).getExerciseID(), mWorkout.getWorkoutID(), score);
+
+        // Add the exercise log to the users account
+        Firebase firebaseRef = new Firebase(getString(R.string.firebase_url) + "users/" + mUser.getAuthUID() + "/exerciseLog");
+        Firebase newLogRef = firebaseRef.push();
+        newLogRef.setValue(newExerciseLog);
+
+
+        mCurrentExerciseIndex++;
+        // If the end of the exercises has been reached, roll back to zero
+        if(mCurrentExerciseIndex >= mExercises.size()){
+            mCurrentExerciseIndex = 0;
+        }
+
+        Exercise newExercise = mExercises.get(mCurrentExerciseIndex);
+
+        mExerciseTitle.setText(newExercise.getExerciseTitle());
+        mExerciseInstructions.setText("This is how you do this trivially easy and understandable exercises...");
+
+
+
+
     }
+
+
+
 }

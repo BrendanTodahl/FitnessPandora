@@ -1,9 +1,9 @@
 package edu.osu.fitnesspandora;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -11,7 +11,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.firebase.client.DataSnapshot;
@@ -19,15 +19,20 @@ import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity {
 
     private String TAG = this.getClass().getSimpleName();
 
     // User's credentials from SharedPreferences
-    private String mAuthToken;
-    private String mAuthUID;
+    private User mUser;
 
     private boolean mIsLoggingOut = false;
+
+    // Initialize data from Firebase
+    private ArrayList<Workout> mWorkouts;
+    private ArrayList<Exercise> mExercises;
 
     // UI references
     private TextView mWelcomeMessage;
@@ -38,21 +43,32 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Log.i(TAG, "Lifecycle method onCreate() triggered");
 
-        // Restore preferences
-        SharedPreferences userAuthData = getSharedPreferences("USER_AUTH_DATA", 0);
-        mAuthToken = userAuthData.getString("authToken", "");
-        mAuthUID = userAuthData.getString("authUID", "");
+        // Initialize the user's credentials
+        mUser = User.get(this);
 
         // Initialize Firebase with the context
         Firebase.setAndroidContext(this);
 
         // Open Firebase
-        Log.i("Firebase", "Shared Pref" + userAuthData.getString("authUID", ""));
-        Log.i("Firebase", "Extracting UID: " + mAuthUID);
-        Firebase firebaseUserRef = new Firebase("https://fitnesspandora.firebaseio.com/users/" + mAuthUID + "/");
-
+        Firebase firebaseUserRef = new Firebase(getString(R.string.firebase_url) + "users/" + mUser.getAuthUID());
 
         setContentView(R.layout.activity_main);
+
+        // Custom actionbar
+        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+        getSupportActionBar().setCustomView(R.layout.actionbar_main);
+        // Back button
+        ImageView mBackButton = (ImageView) findViewById(R.id.back_button);
+        mBackButton.setVisibility(View.INVISIBLE);
+        // Logout button
+        ImageView mLogoutButton = (ImageView) findViewById(R.id.logout_button);
+        mLogoutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                logoutUser();
+            }
+        });
+
 
         mWelcomeMessage = (TextView) findViewById(R.id.welcome_message);
 
@@ -79,11 +95,15 @@ public class MainActivity extends AppCompatActivity {
         mWorkoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent workOutIntent = new Intent(MainActivity.this, WorkoutActivity.class);
+                Intent workOutIntent = new Intent(MainActivity.this, WorkoutListActivity.class);
                 startActivity(workOutIntent);
             }
         });
 
+
+        // Initialize data from Firebase
+        mWorkouts = WorkoutLab.get().getWorkouts();
+        mExercises = ExerciseLab.get().getExercises();
 
     }
 
@@ -107,18 +127,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void logoutUser(MenuItem item){
+    public void logoutUser(){
         // User wants logged out. So set the auth information to null/empty and go back to login activity
         mIsLoggingOut = true;
 
-        mAuthToken = "";
-        mAuthUID = "";
-
-        SharedPreferences userAuthData = getSharedPreferences("USER_AUTH_DATA", 0);
-        SharedPreferences.Editor editor = userAuthData.edit();
-        editor.remove("authToken");
-        editor.remove("authUID");
-        editor.commit();
+        mUser.logout(this);
 
         // Destroy this activity
         finish();
@@ -133,12 +146,7 @@ public class MainActivity extends AppCompatActivity {
         Log.i(TAG, "Lifecycle method onStop() triggered");
 
         if(!mIsLoggingOut){
-            // Before closing the application, ensure the user's auth data is save or deleted
-            SharedPreferences userAuthData = getSharedPreferences("USER_AUTH_DATA", 0);
-            SharedPreferences.Editor editor = userAuthData.edit();
-            editor.putString("authToken", mAuthToken);
-            editor.putString("authUID", mAuthUID);
-            editor.commit();
+            mUser.saveUser(this);
         }
 
     }
