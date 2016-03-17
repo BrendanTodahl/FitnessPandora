@@ -34,12 +34,13 @@ public class ExerciseLab {
                         Exercise exercise = new Exercise();
                         // For each of the exercise's attributes,
                         for (DataSnapshot exerciseSnapshot : exerciseSnapshotRaw.getChildren()) {
-                            if (exerciseSnapshot.getKey().equals("exerciseTitle")) {
+                            if (exerciseSnapshot.getKey().equals("exerciseID")) {
+                                exercise.setExerciseID(Math.round((Long)exerciseSnapshot.getValue()));
+                            } else if (exerciseSnapshot.getKey().equals("exerciseTitle")) {
                                 exercise.setExerciseTitle((String) exerciseSnapshot.getValue());
                             }
                         }
-                        // Get the key which represents the exercise's id
-                        exercise.setExerciseID(Integer.parseInt(exerciseSnapshotRaw.getKey()));
+
                         // Add the exercise
                         mExercises.add(exercise);
                         Log.i("Firebase", "Added new exercise: " + exercise.getExerciseTitle() + " with EID: " + Integer.toString(exercise.getExerciseID()));

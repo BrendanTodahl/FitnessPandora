@@ -114,37 +114,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         super.onCreate(savedInstanceState);
         Log.i(TAG, "Lifecycle method onCreate() triggered");
 
-        mUser = User.get(this);
-
         // Initialize Firebase with the context
         Firebase.setAndroidContext(this);
 
-        // If the saved auth token isn't empty string,
-        if(mUser.getAuthToken().length() > 0){
-            mUserAuthenticated = true;
-            // Attempt to log in user first
-            Firebase firebaseUserRef = new Firebase("https://fitnesspandora.firebaseio.com/");
-            firebaseUserRef.authWithCustomToken(mUser.getAuthToken(), new Firebase.AuthResultHandler() {
-                @Override
-                public void onAuthenticated(AuthData authData) {
-                    // Token is good. User's information must already be stored. Proceed to main activity.
-                    Log.i("Firebase", "User already has valid token. Logging in.");
-                    // Destroy the login activity
-                    finish();
-                    // User authenticated, intent to start the main activity
-                    Intent myIntent = new Intent(LoginActivity.this, MainActivity.class);
-                    LoginActivity.this.startActivity(myIntent);
-                }
-                @Override
-                public void onAuthenticationError(FirebaseError firebaseError) {
-                    // User's token is invalid. Allow user to login or register
-                    mUserAuthenticated = false;
-                }
-            });
-            //while(mUserAuthenticated){
-                // Pause application until we figure out if the token is already valid
-            //}
-        }
+        mUser = User.get(this);
 
         setContentView(R.layout.activity_login);
 
@@ -204,6 +177,37 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
         mRegisterFormView = findViewById(R.id.email_register_form);
+
+        // If the saved auth token isn't empty string,
+        if(mUser.getAuthToken().length() > 0){
+            // Prompt the loading screen
+            showProgress(true);
+
+            mUserAuthenticated = true;
+            // Attempt to log in user first
+            Firebase firebaseUserRef = new Firebase("https://fitnesspandora.firebaseio.com/");
+            firebaseUserRef.authWithCustomToken(mUser.getAuthToken(), new Firebase.AuthResultHandler() {
+                @Override
+                public void onAuthenticated(AuthData authData) {
+                    // Token is good. User's information must already be stored. Proceed to main activity.
+                    Log.i("Firebase", "User already has valid token. Logging in.");
+                    // Destroy the login activity
+                    finish();
+                    // User authenticated, intent to start the main activity
+                    Intent myIntent = new Intent(LoginActivity.this, MainActivity.class);
+                    LoginActivity.this.startActivity(myIntent);
+                }
+                @Override
+                public void onAuthenticationError(FirebaseError firebaseError) {
+                    // User's token is invalid. Allow user to login or register
+                    mUserAuthenticated = false;
+                    // Show the registration page
+                    showProgress(false);
+                }
+            });
+
+
+        }
     }
 
     @Override

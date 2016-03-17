@@ -57,11 +57,12 @@
             android:text="Skip"
             android:textSize="40dp"
             android:textAlignment="center"
-            android:background="#d50000"
+            android:textColor="#d50000"
             android:paddingTop="40dp"
             android:paddingBottom="40dp"
             android:paddingLeft="20dp"
             android:paddingRight="20dp"
+            android:textAllCaps="false"
             />
 
         <Button
@@ -74,11 +75,12 @@
             android:text="Like"
             android:textSize="40dp"
             android:textAlignment="center"
-            android:background="#00c853"
+            android:textColor="#00c853"
             android:paddingTop="40dp"
             android:paddingBottom="40dp"
             android:paddingLeft="20dp"
             android:paddingRight="20dp"
+            android:textAllCaps="false"
             />
 
     </LinearLayout>
