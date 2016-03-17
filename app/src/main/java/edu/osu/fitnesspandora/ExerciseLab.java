@@ -24,7 +24,7 @@ public class ExerciseLab {
 
         // Get exercises from Firebase
         Log.i("Firebase", "Starting loading Exercises.");
-        Firebase firebaseWorkoutRef = new Firebase("https://fitnesspandora.firebaseio.com/exercises/");
+        Firebase firebaseWorkoutRef = new Firebase("https://fitnesspandora.firebaseio.com/exercises");
         firebaseWorkoutRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
@@ -35,7 +35,7 @@ public class ExerciseLab {
                         // For each of the exercise's attributes,
                         for (DataSnapshot exerciseSnapshot : exerciseSnapshotRaw.getChildren()) {
                             if (exerciseSnapshot.getKey().equals("exerciseID")) {
-                                exercise.setExerciseID(Math.round((Long)exerciseSnapshot.getValue()));
+                                exercise.setExerciseID(Math.round((Long) exerciseSnapshot.getValue()));
                             } else if (exerciseSnapshot.getKey().equals("exerciseTitle")) {
                                 exercise.setExerciseTitle((String) exerciseSnapshot.getValue());
                             }

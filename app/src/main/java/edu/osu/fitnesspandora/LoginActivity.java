@@ -185,7 +185,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
             mUserAuthenticated = true;
             // Attempt to log in user first
-            Firebase firebaseUserRef = new Firebase("https://fitnesspandora.firebaseio.com/");
+            Firebase firebaseUserRef = new Firebase(getString(R.string.firebase_url) + "");
             firebaseUserRef.authWithCustomToken(mUser.getAuthToken(), new Firebase.AuthResultHandler() {
                 @Override
                 public void onAuthenticated(AuthData authData) {
@@ -532,7 +532,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         protected Boolean doInBackground(Void... params) {
 
             // Open Firebase
-            Firebase firebaseRef = new Firebase("https://fitnesspandora.firebaseio.com/");
+            Firebase firebaseRef = new Firebase(getString(R.string.firebase_url) + "");
 
             // If the user is new, they need to register first
             if(mUserIsNew){
@@ -543,7 +543,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         Log.i("Firebase User Created", result.get("uid").toString());
 
                         // Initialize the user's data in Firebase
-                        Firebase newUserRef = new Firebase("https://fitnesspandora.firebaseio.com/users/" + result.get("uid"));
+                        Firebase newUserRef = new Firebase(getString(R.string.firebase_url) + "users/" + result.get("uid"));
                         newUser theNewUser = new newUser(mFirstName, mLastName, mEmail);
                         newUserRef.setValue(theNewUser, new Firebase.CompletionListener() {
                             @Override

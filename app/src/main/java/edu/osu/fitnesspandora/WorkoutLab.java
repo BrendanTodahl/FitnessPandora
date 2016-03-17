@@ -28,7 +28,7 @@ public class WorkoutLab {
 
         // Get workouts from Firebase
         Log.i("Firebase", "Starting loading Workouts.");
-        Firebase firebaseWorkoutRef = new Firebase("https://fitnesspandora.firebaseio.com/workouts/");
+        Firebase firebaseWorkoutRef = new Firebase("https://fitnesspandora.firebaseio.com/workouts");
         firebaseWorkoutRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {

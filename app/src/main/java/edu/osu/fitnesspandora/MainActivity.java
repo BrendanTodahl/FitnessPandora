@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
         Firebase.setAndroidContext(this);
 
         // Open Firebase
-        Firebase firebaseUserRef = new Firebase("https://fitnesspandora.firebaseio.com/users/" + mUser.getAuthUID() + "/");
+        Firebase firebaseUserRef = new Firebase(getString(R.string.firebase_url) + "users/" + mUser.getAuthUID());
 
         setContentView(R.layout.activity_main);
 
