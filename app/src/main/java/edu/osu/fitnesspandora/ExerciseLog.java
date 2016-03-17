@@ -9,12 +9,12 @@ public class ExerciseLog {
 
     // Store the date as a long for milliseconds
     private Long exerciseDate;
-    private int exerciseID;
-    private int workoutID;
+    private Long exerciseID;
+    private Long workoutID;
     // Score the likeness score: -1 dislikes, 0 skipped, 1 likes
-    private int exerciseScore;
+    private Long exerciseScore;
 
-    public ExerciseLog(Long exerciseDate, int exerciseID, int workoutID, int exerciseScore) {
+    public ExerciseLog(Long exerciseDate, Long exerciseID, Long workoutID, Long exerciseScore) {
         this.exerciseDate = exerciseDate;
         this.exerciseID = exerciseID;
         this.workoutID = workoutID;
@@ -29,27 +29,27 @@ public class ExerciseLog {
         this.exerciseDate = exerciseDate;
     }
 
-    public int getExerciseID() {
+    public Long getExerciseID() {
         return exerciseID;
     }
 
-    public void setExerciseID(int exerciseID) {
+    public void setExerciseID(Long exerciseID) {
         this.exerciseID = exerciseID;
     }
 
-    public int getWorkoutID() {
+    public Long getWorkoutID() {
         return workoutID;
     }
 
-    public void setWorkoutID(int workoutID) {
+    public void setWorkoutID(Long workoutID) {
         this.workoutID = workoutID;
     }
 
-    public int getexerciseScore() {
+    public Long getexerciseScore() {
         return exerciseScore;
     }
 
-    public void setexerciseScore(int exerciseScore) {
+    public void setexerciseScore(Long exerciseScore) {
         this.exerciseScore = exerciseScore;
     }
 }

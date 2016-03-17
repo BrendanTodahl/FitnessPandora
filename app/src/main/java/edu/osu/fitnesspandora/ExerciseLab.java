@@ -35,7 +35,7 @@ public class ExerciseLab {
                         // For each of the exercise's attributes,
                         for (DataSnapshot exerciseSnapshot : exerciseSnapshotRaw.getChildren()) {
                             if (exerciseSnapshot.getKey().equals("exerciseID")) {
-                                exercise.setExerciseID(Math.round((Long) exerciseSnapshot.getValue()));
+                                exercise.setExerciseID((long) exerciseSnapshot.getValue());
                             } else if (exerciseSnapshot.getKey().equals("exerciseTitle")) {
                                 exercise.setExerciseTitle((String) exerciseSnapshot.getValue());
                             }
@@ -43,7 +43,7 @@ public class ExerciseLab {
 
                         // Add the exercise
                         mExercises.add(exercise);
-                        Log.i("Firebase", "Added new exercise: " + exercise.getExerciseTitle() + " with EID: " + Integer.toString(exercise.getExerciseID()));
+                        Log.i("Firebase", "Added new exercise: " + exercise.getExerciseTitle() + " with EID: " + Long.toString(exercise.getExerciseID()));
                     }
                 } else {
                     Log.e("Firebase", snapshot.toString());

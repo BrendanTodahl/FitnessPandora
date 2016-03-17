@@ -42,7 +42,7 @@ public class WorkoutActivity  extends AppCompatActivity {
         setContentView(R.layout.activity_workout);
 
         // Get the one workout the user has selected to do
-        mWorkout = WorkoutLab.get().getWorkout((int) getIntent().getSerializableExtra(EXTRA_WORKOUT_ID));
+        mWorkout = WorkoutLab.get().getWorkout((long) getIntent().getSerializableExtra(EXTRA_WORKOUT_ID));
         // Get our required data
         mUser = User.get(this);
         mExercises = ExerciseLab.get().getExercises();
@@ -102,7 +102,10 @@ public class WorkoutActivity  extends AppCompatActivity {
         // Get all exercises that are linked to the current workout
         for(int i =0; i < mExercises.size(); i++){
             Exercise tempExercise = mExercises.get(i);
-            if(mWorkout.getWorkoutExerciseIDs().contains(tempExercise.getExerciseID())){
+            Log.i("Firebase", mWorkout.getWorkoutExerciseIDs().toString());
+            Log.i("Firebase", ""+tempExercise.getExerciseID());
+            Log.i("Firebase", "" + mWorkout.getWorkoutExerciseIDs().contains(tempExercise.getExerciseID()));
+            if(mWorkout.isValidExerciseID(tempExercise.getExerciseID())){
                 exercisePriorityQueue.add(tempExercise);
             }else{
                 exerciseBadQueue.add(tempExercise);
@@ -122,7 +125,7 @@ public class WorkoutActivity  extends AppCompatActivity {
     private void nextExercise(boolean userLikes){
 
         // TODO ADD DISLIKE - SKIP - LIKES
-        int score = 0;
+        long score = 0;
         if(userLikes){
             score = 1;
         }else{

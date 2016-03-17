@@ -6,14 +6,14 @@ import java.util.ArrayList;
 public class Workout {
 
     private String workoutTitle;
-    private int workoutID;
-    private ArrayList<Integer> workoutExerciseIDs;
+    private long workoutID;
+    private ArrayList<Long> workoutExerciseIDs;
 
     public Workout() {
         // Leaning on Firebase
     }
 
-    public Workout(String workoutTitle, ArrayList<Integer> workoutExerciseIDs) {
+    public Workout(String workoutTitle, ArrayList<Long> workoutExerciseIDs) {
         this.workoutTitle = workoutTitle;
         this.workoutExerciseIDs = workoutExerciseIDs;
     }
@@ -25,17 +25,17 @@ public class Workout {
         workoutTitle = newWorkoutTitle;
     }
 
-    public ArrayList<Integer> getWorkoutExerciseIDs() {
+    public ArrayList<Long> getWorkoutExerciseIDs() {
         return workoutExerciseIDs;
     }
-    public void setWorkoutExerciseIDs(ArrayList<Integer> newWorkoutExerciseIDs) {
+    public void setWorkoutExerciseIDs(ArrayList<Long> newWorkoutExerciseIDs) {
         workoutExerciseIDs = newWorkoutExerciseIDs;
     }
 
-    public int getWorkoutID() {
+    public Long getWorkoutID() {
         return workoutID;
     }
-    public void setWorkoutID(int workoutID) {
+    public void setWorkoutID(Long workoutID) {
         this.workoutID = workoutID;
     }
 
@@ -43,4 +43,17 @@ public class Workout {
     public String toString() {
         return workoutTitle;
     }
+
+    public boolean isValidExerciseID(long exerciseID){
+        for(int i = 0; i < workoutExerciseIDs.size(); i++){
+            long param = exerciseID;
+            long local = (long) workoutExerciseIDs.get(i);
+            if(param == local){
+                return true;
+            }
+
+        }
+        return false;
+    }
+
 }

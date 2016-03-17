@@ -3,18 +3,18 @@ package edu.osu.fitnesspandora;
 
 public class Exercise {
 
-    private int exerciseID;
+    private long exerciseID;
     private String exerciseTitle;
 
     public Exercise(){
         // Empty for Firebase
     }
 
-    public int getExerciseID() {
+    public long getExerciseID() {
         return exerciseID;
     }
 
-    public void setExerciseID(int exerciseID) {
+    public void setExerciseID(long exerciseID) {
         this.exerciseID = exerciseID;
     }
 
