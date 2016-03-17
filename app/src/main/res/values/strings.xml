@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">FitnessPandora</string>
+    <string name="app_name">Fitness Pandora</string>
 
     <string name="firebase_url">https://fitnesspandora.firebaseio.com/</string>
 
@@ -23,6 +23,8 @@
 
     <!-- Strings related to Main Hub Screen -->
     <string name="workout_button">Workout</string>
+    <string name="stats_button">Statistics</string>
+    <string name="settings_button">Settings</string>
 
     <!-- Strings related to Workout Screen -->
     <string name="upper_body">Upper Body</string>

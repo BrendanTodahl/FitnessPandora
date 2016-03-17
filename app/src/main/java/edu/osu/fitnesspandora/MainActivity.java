@@ -3,6 +3,7 @@ package edu.osu.fitnesspandora;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -10,6 +11,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.firebase.client.DataSnapshot;
@@ -51,6 +53,22 @@ public class MainActivity extends AppCompatActivity {
         Firebase firebaseUserRef = new Firebase(getString(R.string.firebase_url) + "users/" + mUser.getAuthUID());
 
         setContentView(R.layout.activity_main);
+
+        // Custom actionbar
+        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+        getSupportActionBar().setCustomView(R.layout.actionbar_main);
+        // Back button
+        ImageView mBackButton = (ImageView) findViewById(R.id.back_button);
+        mBackButton.setVisibility(View.INVISIBLE);
+        // Logout button
+        ImageView mLogoutButton = (ImageView) findViewById(R.id.logout_button);
+        mLogoutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                logoutUser();
+            }
+        });
+
 
         mWelcomeMessage = (TextView) findViewById(R.id.welcome_message);
 
@@ -109,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void logoutUser(MenuItem item){
+    public void logoutUser(){
         // User wants logged out. So set the auth information to null/empty and go back to login activity
         mIsLoggingOut = true;
 
