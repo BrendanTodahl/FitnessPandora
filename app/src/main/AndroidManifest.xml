@@ -47,6 +47,11 @@
             android:label="@string/title_activity_lower_body"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
+        <activity
+            android:name=".PedometerActivity"
+            android:label="@string/title_activity_pedometer"
+            android:screenOrientation="portrait">
+        </activity>
     </application>
 
 </manifest>

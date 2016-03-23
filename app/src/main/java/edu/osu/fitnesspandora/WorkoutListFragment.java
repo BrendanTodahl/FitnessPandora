@@ -26,7 +26,10 @@ public class WorkoutListFragment extends ListFragment {
         getActivity().setTitle("Select Workout");
 
         mWorkouts = WorkoutLab.get().getWorkouts();
-
+        // -- Start added code. NEEDS TO BE DONE ANOTHER WAY
+        Workout pedometer = new Workout("Pedometer", new ArrayList<Long>());
+        mWorkouts.add(pedometer);
+        // -- end added code
         WorkoutAdapter adapter = new WorkoutAdapter(mWorkouts);
         setListAdapter(adapter);
     }
@@ -34,12 +37,15 @@ public class WorkoutListFragment extends ListFragment {
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
         Workout w = ((WorkoutAdapter)getListAdapter()).getItem(position);
-
-        // Start a Workout with the selected workout
-        Intent i = new Intent(getActivity(), WorkoutActivity.class);
-        i.putExtra(WorkoutActivity.EXTRA_WORKOUT_ID, w.getWorkoutID());
-        startActivity(i);
-
+        if (w.getWorkoutTitle().equals("Pedometer")) { // Special case for the pedometer activity for now...
+            Intent i = new Intent(getActivity(), PedometerActivity.class);
+            startActivity(i);
+        } else {
+            // Start a Workout with the selected workout
+            Intent i = new Intent(getActivity(), WorkoutActivity.class);
+            i.putExtra(WorkoutActivity.EXTRA_WORKOUT_ID, w.getWorkoutID());
+            startActivity(i);
+        }
     }
 
     @Override
