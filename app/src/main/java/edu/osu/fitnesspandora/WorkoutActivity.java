@@ -108,7 +108,8 @@ public class WorkoutActivity  extends AppCompatActivity {
             if(mWorkout.isValidExerciseID(tempExercise.getExerciseID())){
                 exercisePriorityQueue.add(tempExercise);
             }else{
-                exerciseBadQueue.add(tempExercise);
+                //comment this out so exercises that aren't part of the category aren't cycled through
+                //exerciseBadQueue.add(tempExercise);
             }
         }
 
@@ -143,8 +144,8 @@ public class WorkoutActivity  extends AppCompatActivity {
 
 
         mCurrentExerciseIndex++;
-        // If the current exercise index isn't an exercise in the workout category, roll back to first in the category
-        if(!mWorkout.getWorkoutExerciseIDs().contains(mExercises.get(mCurrentExerciseIndex).getExerciseID())){
+        // roll back to the first exercise index in the category
+        if(mCurrentExerciseIndex >= mExercises.size()){
             mCurrentExerciseIndex = 0;
         }
 
