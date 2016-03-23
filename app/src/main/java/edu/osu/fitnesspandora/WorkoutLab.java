@@ -22,7 +22,7 @@ public class WorkoutLab {
 
     private static WorkoutLab sWorkoutLab = null;
 
-    public WorkoutLab(){
+    private WorkoutLab(){
 
         mWorkouts = new ArrayList<Workout>();
 
@@ -32,11 +32,10 @@ public class WorkoutLab {
         firebaseWorkoutRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
-                Workout workout = new Workout();
                 if (snapshot.getValue() != null) {
                     // For each workout,
                     for(DataSnapshot workoutSnapshotRaw : snapshot.getChildren()){
-                        //Workout workout = new Workout();
+                        Workout workout = new Workout();
                         // For each of the workout's attributes,
                         for(DataSnapshot workoutSnapshot : workoutSnapshotRaw.getChildren()){
                             if(workoutSnapshot.getKey().equals("workoutExerciseIDs")){
