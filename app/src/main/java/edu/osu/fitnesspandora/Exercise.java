@@ -37,6 +37,6 @@ public class Exercise {
 
     @Override
     public String toString() {
-        return ("Exercise ID: " + exerciseID + " Title: " + exerciseTitle);
+        return ("Exercise ID: " + exerciseID + " Title: " + exerciseTitle + " URL: " + exerciseURL);
     }
 }
