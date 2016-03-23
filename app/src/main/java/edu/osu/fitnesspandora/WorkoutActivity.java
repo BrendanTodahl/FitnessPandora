@@ -144,13 +144,14 @@ public class WorkoutActivity  extends AppCompatActivity {
 
         mCurrentExerciseIndex++;
         // If the end of the exercises has been reached, roll back to zero
-        if(mCurrentExerciseIndex >= mExercises.size()){
+        if(!mWorkout.getWorkoutExerciseIDs().contains(mExercises.get(mCurrentExerciseIndex).getExerciseID())){
             mCurrentExerciseIndex = 0;
         }
 
         Exercise newExercise = mExercises.get(mCurrentExerciseIndex);
 
         mExerciseTitle.setText(newExercise.getExerciseTitle());
+
         mExerciseInstructions.setText("This is how you do this trivially easy and understandable exercises...");
 
 
