@@ -143,7 +143,7 @@ public class WorkoutActivity  extends AppCompatActivity {
 
 
         mCurrentExerciseIndex++;
-        // If the end of the exercises has been reached, roll back to zero
+        // If the current exercise index isn't an exercise in the workout category, roll back to first in the category
         if(!mWorkout.getWorkoutExerciseIDs().contains(mExercises.get(mCurrentExerciseIndex).getExerciseID())){
             mCurrentExerciseIndex = 0;
         }
