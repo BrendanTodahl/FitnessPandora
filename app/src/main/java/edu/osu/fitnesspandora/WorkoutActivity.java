@@ -1,6 +1,8 @@
 package edu.osu.fitnesspandora;
 
 import android.app.Fragment;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -29,9 +31,10 @@ public class WorkoutActivity  extends AppCompatActivity {
     private Workout mWorkout;
 
     private TextView mExerciseTitle;
-    private TextView mExerciseInstructions;
+    //private TextView mExerciseInstructions;
     private Button mSkipButton;
     private Button mLikeButton;
+    private Button mInstructionButton;
 
     private int mCurrentExerciseIndex;
 
@@ -51,9 +54,10 @@ public class WorkoutActivity  extends AppCompatActivity {
 
         // Attach to the layout
         mExerciseTitle = (TextView) findViewById(R.id.exercise_title);
-        mExerciseInstructions = (TextView) findViewById(R.id.exercise_instructions);
+        //mExerciseInstructions = (TextView) findViewById(R.id.exercise_instructions);
         mSkipButton = (Button) findViewById(R.id.button_skip);
         mLikeButton = (Button) findViewById(R.id.button_like);
+        mInstructionButton = (Button) findViewById(R.id.exercise_instructions);
 
         // TODO Read the index back from bundle state save
 
@@ -63,7 +67,7 @@ public class WorkoutActivity  extends AppCompatActivity {
         mCurrentExerciseIndex = 0;
         Exercise newExercise = mExercises.get(mCurrentExerciseIndex);
         mExerciseTitle.setText(newExercise.getExerciseTitle());
-        mExerciseInstructions.setText("This is how you do this trivially easy and understandable exercises...");
+        //mExerciseInstructions.setText("This is how you do this trivially easy and understandable exercises...");
 
         // Setup the button responses
         mSkipButton.setOnClickListener(new View.OnClickListener(){
@@ -78,6 +82,15 @@ public class WorkoutActivity  extends AppCompatActivity {
             public void onClick(View v) {
                 // The user likes the exercise
                 nextExercise(true);
+            }
+        });
+
+        //launch a youtube instructional video
+        mInstructionButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                Intent youtube = new Intent(Intent.ACTION_VIEW, Uri.parse(mExercises.get(mCurrentExerciseIndex).getExerciseURL()));
+                startActivity(youtube);
             }
         });
 
@@ -108,7 +121,8 @@ public class WorkoutActivity  extends AppCompatActivity {
             if(mWorkout.isValidExerciseID(tempExercise.getExerciseID())){
                 exercisePriorityQueue.add(tempExercise);
             }else{
-                exerciseBadQueue.add(tempExercise);
+                //comment this out so exercises that aren't part of the category aren't cycled through
+                //exerciseBadQueue.add(tempExercise);
             }
         }
 
@@ -143,7 +157,7 @@ public class WorkoutActivity  extends AppCompatActivity {
 
 
         mCurrentExerciseIndex++;
-        // If the end of the exercises has been reached, roll back to zero
+        // roll back to the first exercise index in the category
         if(mCurrentExerciseIndex >= mExercises.size()){
             mCurrentExerciseIndex = 0;
         }
@@ -151,7 +165,8 @@ public class WorkoutActivity  extends AppCompatActivity {
         Exercise newExercise = mExercises.get(mCurrentExerciseIndex);
 
         mExerciseTitle.setText(newExercise.getExerciseTitle());
-        mExerciseInstructions.setText("This is how you do this trivially easy and understandable exercises...");
+
+        //mExerciseInstructions.setText("This is how you do this trivially easy and understandable exercises...");
 
 
 

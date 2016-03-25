@@ -38,12 +38,14 @@ public class ExerciseLab {
                                 exercise.setExerciseID((long) exerciseSnapshot.getValue());
                             } else if (exerciseSnapshot.getKey().equals("exerciseTitle")) {
                                 exercise.setExerciseTitle((String) exerciseSnapshot.getValue());
+                            } else if (exerciseSnapshot.getKey().equals("exerciseURL")) {
+                                exercise.setExerciseURL((String) exerciseSnapshot.getValue());
                             }
                         }
 
                         // Add the exercise
                         mExercises.add(exercise);
-                        Log.i("Firebase", "Added new exercise: " + exercise.getExerciseTitle() + " with EID: " + Long.toString(exercise.getExerciseID()));
+                        Log.i("Firebase", "Added new exercise: " + exercise.getExerciseTitle() + " with EID: " + Long.toString(exercise.getExerciseID()) + " and URL: " + exercise.getExerciseURL());
                     }
                 } else {
                     Log.e("Firebase", snapshot.toString());

@@ -5,6 +5,7 @@ public class Exercise {
 
     private long exerciseID;
     private String exerciseTitle;
+    private String exerciseURL;
 
     public Exercise(){
         // Empty for Firebase
@@ -26,8 +27,16 @@ public class Exercise {
         this.exerciseTitle = exerciseTitle;
     }
 
+    public String getExerciseURL() {
+        return exerciseURL;
+    }
+
+    public void setExerciseURL (String exerciseURL){
+        this.exerciseURL = exerciseURL;
+    }
+
     @Override
     public String toString() {
-        return ("Exercise ID: " + exerciseID + " Title: " + exerciseTitle);
+        return ("Exercise ID: " + exerciseID + " Title: " + exerciseTitle + " URL: " + exerciseURL);
     }
 }
