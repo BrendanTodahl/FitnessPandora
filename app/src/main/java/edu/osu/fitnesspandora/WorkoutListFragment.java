@@ -17,7 +17,7 @@ import java.util.ArrayList;
 public class WorkoutListFragment extends ListFragment {
 
     private static final String TAG = "WorkoutListFragment";
-
+    private static Workout mPedometer;
     private ArrayList<Workout> mWorkouts;
 
     @Override
@@ -27,8 +27,10 @@ public class WorkoutListFragment extends ListFragment {
 
         mWorkouts = WorkoutLab.get().getWorkouts();
         // -- Start added code. NEEDS TO BE DONE ANOTHER WAY
-        Workout pedometer = new Workout("Pedometer", new ArrayList<Long>());
-        mWorkouts.add(pedometer);
+        if (mPedometer == null) {
+            mPedometer = new Workout("Pedometer", new ArrayList<Long>());
+            mWorkouts.add(mPedometer);
+        }
         // -- end added code
         WorkoutAdapter adapter = new WorkoutAdapter(mWorkouts);
         setListAdapter(adapter);
