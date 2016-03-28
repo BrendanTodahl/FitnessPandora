@@ -32,11 +32,13 @@
         />
 
 
+
+
     <Button
-        android:id="@+id/stats_button"
+        android:id="@+id/pedemeter_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/stats_button"
+        android:text="@string/pedometer_button"
         android:textSize="20dp"
         android:layout_marginTop="10dp"
         android:layout_marginLeft="20dp"
@@ -44,13 +46,13 @@
         android:paddingTop="20dp"
         android:paddingBottom="20dp"
         android:textAllCaps="false"
-       />
+        />
 
     <Button
-        android:id="@+id/settings_button"
+        android:id="@+id/stats_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/settings_button"
+        android:text="@string/stats_button"
         android:textSize="20dp"
         android:layout_marginTop="10dp"
         android:layout_marginLeft="20dp"

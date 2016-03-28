@@ -22,6 +22,7 @@
     </string>
 
     <!-- Strings related to Main Hub Screen -->
+    <string name="pedometer_button">Pedometer</string>
     <string name="workout_button">Workout</string>
     <string name="stats_button">Statistics</string>
     <string name="settings_button">Settings</string>
