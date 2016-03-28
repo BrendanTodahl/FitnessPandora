@@ -37,6 +37,11 @@
             android:name=".WorkoutActivity"
             android:label="@string/app_name">
         </activity>
+        <activity
+            android:name=".PedometerActivity"
+            android:label="@string/title_activity_pedometer"
+            android:screenOrientation="portrait">
+        </activity>
     </application>
 
 </manifest>

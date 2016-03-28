@@ -33,4 +33,12 @@
     <string name="cardio">Cardio</string>
     <string name="title_activity_upper_body">UpperBodyActivity</string>
     <string name="title_activity_lower_body">LowerBodyActivity</string>
+    <string name="title_activity_pedometer">PedometerActivity</string>
+
+    <!-- Strings related to PedometerActivity -->
+    <string name="pedometer">Pedometer</string>
+    <string name="steps">Steps:</string>
+    <string name="pedoStart">Start</string>
+    <string name="pedoStop">Stop</string>
+    <string name="pedoReset">Reset</string>
 </resources>
