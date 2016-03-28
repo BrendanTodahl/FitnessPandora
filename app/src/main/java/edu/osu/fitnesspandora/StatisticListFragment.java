@@ -15,6 +15,7 @@ import org.w3c.dom.Text;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 
 public class StatisticListFragment extends ListFragment {
@@ -80,16 +81,19 @@ public class StatisticListFragment extends ListFragment {
             Log.i("Exercise Log", "Exercise Log: " + e.toString());
 
             TextView exerciseTitle = (TextView) convertView.findViewById(R.id.exercise_log_list_item_exercisetitle);
-            exerciseTitle.setText(exercise.getExerciseTitle());
-
-            TextView workoutTitle = (TextView) convertView.findViewById(R.id.exercise_log_list_item_workouttitle);
-            workoutTitle.setText(workout.getWorkoutTitle());
+            exerciseTitle.setText(exercise.getExerciseTitle() + " (under workout type " + workout.getWorkoutTitle() + ")");
 
             TextView date = (TextView) convertView.findViewById(R.id.exercise_log_list_item_date);
             Date theDate = new Date(e.getExerciseDate());
             Calendar theCal = Calendar.getInstance();
             theCal.setTime(theDate);
-            date.setText(theCal.toString());
+
+            String dateFormat = "";
+            dateFormat += theCal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault()) + " ";
+            dateFormat += theCal.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
+            dateFormat += theCal.get(Calendar.DAY_OF_MONTH) + ", ";
+            dateFormat += theCal.get(Calendar.YEAR);
+            date.setText(dateFormat);
 
             return convertView;
         }
