@@ -11,7 +11,7 @@ public class ExerciseLog {
     private Long exerciseDate;
     private Long exerciseID;
     private Long workoutID;
-    // Score the likeness score: -1 dislikes, 0 skipped, 1 likes
+    // Score the likeness score: -1 dislikes, 1 likes
     private Long exerciseScore;
 
     public ExerciseLog(Long exerciseDate, Long exerciseID, Long workoutID, Long exerciseScore) {
@@ -51,5 +51,10 @@ public class ExerciseLog {
 
     public void setexerciseScore(Long exerciseScore) {
         this.exerciseScore = exerciseScore;
+    }
+
+    @Override
+    public String toString(){
+        return "Date: " + exerciseDate + " EID: " + exerciseID + " WID: " + workoutID + " Score: " + exerciseScore;
     }
 }

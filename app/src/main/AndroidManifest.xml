@@ -34,6 +34,10 @@
             android:label="@string/app_name">
         </activity>
         <activity
+            android:name=".StatisticListActivity"
+            android:label="@string/app_name">
+        </activity>
+        <activity
             android:name=".WorkoutActivity"
             android:label="@string/app_name">
         </activity>

@@ -138,7 +138,7 @@ public class WorkoutActivity  extends AppCompatActivity {
 
     private void nextExercise(boolean userLikes){
 
-        // TODO ADD DISLIKE - SKIP - LIKES
+        // If the user 'Likes', value is 1. Otherwise, if the user 'Skips', the value is -1.
         long score = 0;
         if(userLikes){
             score = 1;

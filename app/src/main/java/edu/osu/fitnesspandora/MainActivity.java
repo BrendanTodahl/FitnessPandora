@@ -33,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
     // Initialize data from Firebase
     private ArrayList<Workout> mWorkouts;
     private ArrayList<Exercise> mExercises;
+    private ArrayList<ExerciseLog> mExerciseLogs;
 
     // UI references
     private TextView mWelcomeMessage;
@@ -115,7 +116,8 @@ public class MainActivity extends AppCompatActivity {
         mStatisticsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Intent i = new Intent(MainActivity.this, StatisticListActivity.class);
+                startActivity(i);
             }
         });
 
@@ -124,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
         // Initialize data from Firebase
         mWorkouts = WorkoutLab.get().getWorkouts();
         mExercises = ExerciseLab.get().getExercises();
+        mExerciseLogs = ExerciseLogLab.get(mUser.getAuthUID()).getExerciseLogs();
 
     }
 
