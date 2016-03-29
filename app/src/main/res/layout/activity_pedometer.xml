@@ -42,18 +42,6 @@
         >
 
         <Button
-            android:id="@+id/startStopPedoButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight=".5"
-            android:textStyle="bold"
-            android:textSize="40sp"
-            android:paddingTop="40dp"
-            android:paddingBottom="40dp"
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp"
-            android:textAllCaps="false"/>
-        <Button
             android:id="@+id/resetPedoButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -65,6 +53,21 @@
             android:paddingBottom="40dp"
             android:paddingLeft="20dp"
             android:paddingRight="20dp"
+            android:textColor="@color/colorTextPrimary"
             android:textAllCaps="false"/>
+        <Button
+            android:id="@+id/startStopPedoButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight=".5"
+            android:textStyle="bold"
+            android:textSize="40sp"
+            android:paddingTop="40dp"
+            android:paddingBottom="40dp"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:textColor="#00c853"
+            android:textAllCaps="false"/>
+
     </LinearLayout>
 </RelativeLayout>

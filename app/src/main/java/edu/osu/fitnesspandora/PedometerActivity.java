@@ -1,6 +1,7 @@
 package edu.osu.fitnesspandora;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -56,11 +57,13 @@ public class PedometerActivity extends AppCompatActivity implements SensorEventL
                 if (!pedoStarted) {
                     Log.i(TAG, "mStartStopButton change text to 'Stop'");
                     mStartStopButton.setText(R.string.pedoStop);
+                    mStartStopButton.setTextColor(Color.parseColor("#d50000"));
                     pedoStarted = true;
                     toast = Toast.makeText(getApplicationContext(), "Now tracking steps", Toast.LENGTH_SHORT);
                 } else {
                     Log.i(TAG, "mStartStopButton change text to 'Start'");
                     mStartStopButton.setText(R.string.pedoStart);
+                    mStartStopButton.setTextColor(Color.parseColor("#00c853"));
                     pedoStarted = false;
                     toast = Toast.makeText(getApplicationContext(), "No longer tracking steps", Toast.LENGTH_SHORT);
                 }

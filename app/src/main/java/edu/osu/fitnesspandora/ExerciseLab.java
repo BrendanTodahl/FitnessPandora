@@ -69,7 +69,7 @@ public class ExerciseLab {
 
     public ArrayList<Exercise> getExercises(){ return mExercises; }
 
-    public Exercise getExercise(int exerciseID){
+    public Exercise getExercise(long exerciseID){
         for (Exercise e : mExercises){
             if(e.getExerciseID() == exerciseID){
                 return e;

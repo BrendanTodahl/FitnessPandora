@@ -33,10 +33,13 @@ public class MainActivity extends AppCompatActivity {
     // Initialize data from Firebase
     private ArrayList<Workout> mWorkouts;
     private ArrayList<Exercise> mExercises;
+    private ArrayList<ExerciseLog> mExerciseLogs;
 
     // UI references
     private TextView mWelcomeMessage;
     private Button mWorkoutButton;
+    private Button mPedometerButton;
+    private Button mStatisticsButton;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -100,10 +103,30 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        mPedometerButton = (Button) findViewById(R.id.pedemeter_button);
+        mPedometerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(MainActivity.this, PedometerActivity.class);
+                startActivity(i);
+            }
+        });
+
+        mStatisticsButton = (Button) findViewById(R.id.stats_button);
+        mStatisticsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(MainActivity.this, StatisticListActivity.class);
+                startActivity(i);
+            }
+        });
+
+
 
         // Initialize data from Firebase
         mWorkouts = WorkoutLab.get().getWorkouts();
         mExercises = ExerciseLab.get().getExercises();
+        mExerciseLogs = ExerciseLogLab.get(mUser.getAuthUID()).getExerciseLogs();
 
     }
 

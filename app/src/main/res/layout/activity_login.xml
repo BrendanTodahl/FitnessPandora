@@ -115,7 +115,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="@string/action_sign_in"
-                android:textStyle="bold"/>
+                android:textStyle="bold"
+                android:textColor="@color/colorTextPrimary"
+                android:textAllCaps="false"/>
+
 
             <Button
                 android:id="@+id/email_register_button"
@@ -124,7 +127,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="@string/action_register"
-                android:textStyle="bold"/>
+                android:textStyle="bold"
+                android:textColor="@color/colorTextPrimary"
+                android:textAllCaps="false"/>
 
         </LinearLayout>
     </ScrollView>
