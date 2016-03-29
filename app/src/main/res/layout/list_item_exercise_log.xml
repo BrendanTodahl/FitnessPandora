@@ -32,6 +32,44 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text = "Reps:"
+            android:gravity="center"
+            android:textSize="14dp"
+            android:paddingBottom="5dp"
+            android:textColor="@color/colorTextPrimary"
+            />
+
+        <TextView
+            android:id="@+id/reps"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:textSize="14dp"
+            android:paddingBottom="5dp"
+            android:textColor="@color/colorTextPrimary"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text = "Weight:"
+            android:gravity="left"
+            android:textSize="14dp"
+            android:paddingBottom="5dp"
+            android:textColor="@color/colorTextPrimary"
+            />
+
+        <TextView
+            android:id="@+id/weight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:textSize="14dp"
+            android:paddingBottom="5dp"
+            android:textColor="@color/colorTextPrimary"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:id="@+id/exercise_log_list_item_workouttitle"
             android:gravity="right"
             android:textSize="16dp"

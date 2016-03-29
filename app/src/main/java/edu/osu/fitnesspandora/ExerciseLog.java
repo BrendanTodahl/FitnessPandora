@@ -13,12 +13,24 @@ public class ExerciseLog {
     private Long workoutID;
     // Score the likeness score: -1 dislikes, 1 likes
     private Long exerciseScore;
+    private Long exerciseReps;
+    private Long exerciseWeight;
 
-    public ExerciseLog(Long exerciseDate, Long exerciseID, Long workoutID, Long exerciseScore) {
+    public ExerciseLog(Long exerciseDate, Long exerciseID, Long workoutID, Long exerciseScore, Long exerciseReps, Long exerciseWeight) {
         this.exerciseDate = exerciseDate;
         this.exerciseID = exerciseID;
         this.workoutID = workoutID;
         this.exerciseScore = exerciseScore;
+        this.exerciseReps = exerciseReps;
+        this.exerciseWeight = exerciseWeight;
+    }
+
+    public long getExerciseReps(){
+        return this.exerciseReps;
+    }
+
+    public long getExerciseWeight(){
+        return this.exerciseWeight;
     }
 
     public Long getExerciseDate() {

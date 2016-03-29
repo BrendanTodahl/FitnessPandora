@@ -186,6 +186,12 @@ public class StatisticListFragment extends ListFragment {
             TextView skipsTitle = (TextView) convertView.findViewById(R.id.exercise_log_list_item_exerciseSkips);
             skipsTitle.setText("Skips: " + e.mSumSkips);
 
+            TextView repCount = (TextView) convertView.findViewById(R.id.reps);
+            repCount.setText(String.valueOf(e.getExerciseReps())+" ");
+
+            TextView weight = (TextView) convertView.findViewById(R.id.weight);
+            weight.setText(String.valueOf(e.getExerciseWeight()));
+
             TextView date = (TextView) convertView.findViewById(R.id.exercise_log_list_item_date);
             Date theDate = new Date(e.getExerciseDate());
             Calendar theCal = Calendar.getInstance();
@@ -291,6 +297,8 @@ public class StatisticListFragment extends ListFragment {
         public long mSumLikes;
         public long mSumSkips;
         public long mMostRecentDate;
+        public long mExerciseReps;
+        public long mExerciseWeight;
 
         public ExerciseLogConsolidated(ExerciseLog el){
             this.mExerciseID = el.getExerciseID();
@@ -298,6 +306,8 @@ public class StatisticListFragment extends ListFragment {
             this.mSumLikes = 0;
             this.mSumSkips = 0;
             this.addSameExercise(el);
+            this.mExerciseReps = el.getExerciseReps();
+            this.mExerciseWeight = el.getExerciseWeight();
         }
 
         public void addSameExercise(ExerciseLog el){
@@ -324,6 +334,12 @@ public class StatisticListFragment extends ListFragment {
         public long getWorkoutID(){
             return mWorkoutID;
         }
+
+        public long getExerciseReps() {return mExerciseReps;}
+
+        public long getExerciseWeight() {return mExerciseWeight;}
+
+
     }
 
 }

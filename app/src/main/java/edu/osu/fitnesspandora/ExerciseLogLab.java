@@ -43,6 +43,9 @@ public class ExerciseLogLab {
                             Long exerciseID = Long.MIN_VALUE;
                             Long workoutID = Long.MIN_VALUE;
                             Long exerciseScore = Long.MIN_VALUE;
+                            Long exerciseReps = Long.MIN_VALUE;
+                            Long exerciseWeight = Long.MIN_VALUE;
+
                             // For each of the exercise logs's attributes,
                             for (DataSnapshot exerciseSnapshot : exerciseLogSnapshotRaw.getChildren()) {
                                 if (exerciseSnapshot.getKey().equals("exerciseDate")) {
@@ -53,11 +56,15 @@ public class ExerciseLogLab {
                                     workoutID = ((long) exerciseSnapshot.getValue());
                                 } else if (exerciseSnapshot.getKey().equals("exerciseScore")) {
                                     exerciseScore = ((long) exerciseSnapshot.getValue());
+                                }else if (exerciseSnapshot.getKey().equals("exerciseReps")){
+                                    exerciseReps = ((long) exerciseSnapshot.getValue());
+                                }else if (exerciseSnapshot.getKey().equals("exerciseWeight")){
+                                    exerciseWeight = ((long) exerciseSnapshot.getValue());
                                 }
 
-                                if(exerciseDate != Long.MIN_VALUE && exerciseID != Long.MIN_VALUE && workoutID != Long.MIN_VALUE && exerciseScore != Long.MIN_VALUE){
+                                if(exerciseDate != Long.MIN_VALUE && exerciseID != Long.MIN_VALUE && workoutID != Long.MIN_VALUE && exerciseScore != Long.MIN_VALUE && exerciseReps != Long.MIN_VALUE && exerciseWeight != Long.MIN_VALUE){
                                     // Construct the new exercise log
-                                    ExerciseLog exerciseLog = new ExerciseLog(exerciseDate, exerciseID, workoutID, exerciseScore);
+                                    ExerciseLog exerciseLog = new ExerciseLog(exerciseDate, exerciseID, workoutID, exerciseScore, exerciseReps, exerciseWeight);
                                     // Log.i("Firebase", "Added new exercise log: " + exerciseLog.toString());
                                     // Add the exercise log
                                     mExerciseLogs.add(exerciseLog);
