@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.firebase.client.Firebase;
@@ -38,6 +39,8 @@ public class WorkoutActivity  extends AppCompatActivity {
     private Button mSkipButton;
     private Button mLikeButton;
     private Button mInstructionButton;
+    private EditText mEditReps;
+    private EditText mEditWeight;
 
     private int mCurrentExerciseIndex;
 
@@ -72,6 +75,9 @@ public class WorkoutActivity  extends AppCompatActivity {
         Exercise newExercise = mExercises.get(mCurrentExerciseIndex);
         mExerciseTitle.setText(newExercise.getExerciseTitle());
         //mExerciseInstructions.setText("This is how you do this trivially easy and understandable exercises...");
+
+        mEditReps = (EditText) findViewById(R.id.editReps);
+        mEditWeight = (EditText) findViewById(R.id.editWeight);
 
         // Setup the button responses
         mSkipButton.setOnClickListener(new View.OnClickListener(){
@@ -157,7 +163,7 @@ public class WorkoutActivity  extends AppCompatActivity {
 
         // Make the new exercise log for the user
         // Date will be in raw milliseconds. PREFERRED
-        ExerciseLog newExerciseLog = new ExerciseLog(new Date().getTime(), mExercises.get(mCurrentExerciseIndex).getExerciseID(), mWorkout.getWorkoutID(), score);
+        ExerciseLog newExerciseLog = new ExerciseLog(new Date().getTime(), mExercises.get(mCurrentExerciseIndex).getExerciseID(), mWorkout.getWorkoutID(), score, Long.valueOf(mEditReps.getText().toString()),Long.valueOf(mEditWeight.getText().toString()));
 
         // Add the exercise log to the users account
         Firebase firebaseRef = new Firebase(getString(R.string.firebase_url) + "users/" + mUser.getAuthUID() + "/exerciseLog");
