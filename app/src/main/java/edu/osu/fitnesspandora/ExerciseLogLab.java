@@ -91,6 +91,17 @@ public class ExerciseLogLab {
 
     public String getUserUID(){return mUserUID;}
 
+    // Returns the total score of a specific excercise
+    public long exerciseScore(long exerciseID){
+        long score = 0;
+        for(ExerciseLog el : mExerciseLogs){
+            if(el.getExerciseID() == exerciseID){
+                score += el.getexerciseScore();
+            }
+        }
+        return score;
+    }
+
 
 }
 

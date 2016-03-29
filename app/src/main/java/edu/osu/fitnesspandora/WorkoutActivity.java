@@ -18,6 +18,8 @@ import com.firebase.client.Firebase;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.UUID;
 
@@ -29,6 +31,7 @@ public class WorkoutActivity  extends AppCompatActivity {
     private User mUser;
     private ArrayList<Exercise> mExercises;
     private Workout mWorkout;
+    private ExerciseLogLab mExerciseLogLab;
 
     private TextView mExerciseTitle;
     //private TextView mExerciseInstructions;
@@ -49,6 +52,7 @@ public class WorkoutActivity  extends AppCompatActivity {
         // Get our required data
         mUser = User.get(this);
         mExercises = ExerciseLab.get().getExercises();
+        mExerciseLogLab = ExerciseLogLab.get(mUser.getAuthUID());
 
         setTitle(mWorkout.getWorkoutTitle() + " Workout");
 
@@ -126,6 +130,9 @@ public class WorkoutActivity  extends AppCompatActivity {
             }
         }
 
+        // Sort the priority queue with the highest scored exercise being first
+        Collections.sort(exercisePriorityQueue, new CompareExerciseScores());
+
         // Now add all of the bad exercises to the tail of the priority queue
         for(Exercise e : exerciseBadQueue){
             exercisePriorityQueue.add(e);
@@ -135,6 +142,8 @@ public class WorkoutActivity  extends AppCompatActivity {
         mExercises = exercisePriorityQueue;
 
     }
+
+
 
     private void nextExercise(boolean userLikes){
 
@@ -171,6 +180,13 @@ public class WorkoutActivity  extends AppCompatActivity {
 
 
 
+    }
+
+    public class CompareExerciseScores implements Comparator<Exercise> {
+        @Override
+        public int compare(Exercise e1, Exercise e2) {
+            return Integer.parseInt(Long.toString(mExerciseLogLab.exerciseScore(e2.getExerciseID()) - mExerciseLogLab.exerciseScore(e1.getExerciseID())));
+        }
     }
 
 

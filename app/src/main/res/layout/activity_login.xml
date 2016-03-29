@@ -116,6 +116,7 @@
                 android:layout_marginTop="16dp"
                 android:text="@string/action_sign_in"
                 android:textStyle="bold"
+                android:textColor="@color/colorTextPrimary"
                 android:textAllCaps="false"/>
 
 
@@ -127,6 +128,7 @@
                 android:layout_marginTop="16dp"
                 android:text="@string/action_register"
                 android:textStyle="bold"
+                android:textColor="@color/colorTextPrimary"
                 android:textAllCaps="false"/>
 
         </LinearLayout>
