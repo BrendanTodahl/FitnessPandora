@@ -35,6 +35,8 @@ public class StatisticListFragment extends ListFragment {
     private ExerciseLogLab mExerciseLogLab;
     private ArrayList<ExerciseLog> mExerciseLogs;
 
+    ExerciseLogConsolidatedLab mELCLab;
+
     private Button mDateButton;
     private Button mScoreButton;
 
@@ -52,10 +54,10 @@ public class StatisticListFragment extends ListFragment {
         mDateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Sort the exercise logs with the first being the most recent
-                Collections.sort(mExerciseLogs, new CompareExerciseDates());
+                // Sort by the consolidated exercise dates, latest first
+                Collections.sort(mELCLab.mConsExerciseLogs, new CompareConsolidatedExerciseDates());
                 // Restart the adapter
-                ExerciseLogAdapter adapter = new ExerciseLogAdapter(mExerciseLogs);
+                ConsolidatedExerciseLogAdapter adapter = new ConsolidatedExerciseLogAdapter(mELCLab.mConsExerciseLogs);
                 setListAdapter(adapter);
             }
         });
@@ -63,10 +65,10 @@ public class StatisticListFragment extends ListFragment {
         mScoreButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Sort the exercise logs starting with the highest scored
-                Collections.sort(mExerciseLogs, new CompareExerciseScores());
+                // Sort by the consolidated exercise scores
+                Collections.sort(mELCLab.mConsExerciseLogs, new CompareConsolidatedExerciseScores());
                 // Restart the adapter
-                ExerciseLogAdapter adapter = new ExerciseLogAdapter(mExerciseLogs);
+                ConsolidatedExerciseLogAdapter adapter = new ConsolidatedExerciseLogAdapter(mELCLab.mConsExerciseLogs);
                 setListAdapter(adapter);
             }
         });
@@ -77,18 +79,13 @@ public class StatisticListFragment extends ListFragment {
         mExerciseLogLab = ExerciseLogLab.get(mUser.getAuthUID());
         mExerciseLogs = mExerciseLogLab.getExerciseLogs();
 
-        // Discard the 'Skips', i.e the exercises the user didn't complete
-        discardExerciseLogs();
+         mELCLab = new ExerciseLogConsolidatedLab(mExerciseLogLab);
 
-        // By defualt, sort the exercise logs with the first being the most recent
-        Collections.sort(mExerciseLogs, new CompareExerciseDates());
+        // Sort by the consolidated exercise dates, latest first
+        Collections.sort(mELCLab.mConsExerciseLogs, new CompareConsolidatedExerciseDates());
 
-        ExerciseLogConsolidatedLab elcLab = new ExerciseLogConsolidatedLab(mExerciseLogLab);
-
-        // Sort by the consolidated exercise scores
-        Collections.sort(elcLab.mConsExerciseLogs, new CompareConsolidatedExerciseScores());
-
-        ConsolidatedExerciseLogAdapter adapter = new ConsolidatedExerciseLogAdapter(elcLab.mConsExerciseLogs);
+        // Restart the adapter
+        ConsolidatedExerciseLogAdapter adapter = new ConsolidatedExerciseLogAdapter(mELCLab.mConsExerciseLogs);
         setListAdapter(adapter);
     }
 
@@ -178,17 +175,23 @@ public class StatisticListFragment extends ListFragment {
             Workout workout = mWorkoutLab.getWorkout(e.getWorkoutID());
 
             TextView exerciseTitle = (TextView) convertView.findViewById(R.id.exercise_log_list_item_exercisetitle);
-            exerciseTitle.setText(exercise.getExerciseTitle() + "Num likes: " + e.mSumLikes);
+            exerciseTitle.setText(exercise.getExerciseTitle());
 
             TextView workoutTitle = (TextView) convertView.findViewById(R.id.exercise_log_list_item_workouttitle);
             workoutTitle.setText(workout.getWorkoutTitle() + " Workout");
+
+            TextView likesTitle = (TextView) convertView.findViewById(R.id.exercise_log_list_item_exerciseLikes);
+            likesTitle.setText("Likes: " + e.mSumLikes);
+
+            TextView skipsTitle = (TextView) convertView.findViewById(R.id.exercise_log_list_item_exerciseSkips);
+            skipsTitle.setText("Skips: " + e.mSumSkips);
 
             TextView date = (TextView) convertView.findViewById(R.id.exercise_log_list_item_date);
             Date theDate = new Date(e.getExerciseDate());
             Calendar theCal = Calendar.getInstance();
             theCal.setTime(theDate);
 
-            String dateFormat = "";
+            String dateFormat = "Most recent: ";
             dateFormat += theCal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault()) + " ";
             dateFormat += theCal.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault()) + ", ";
             dateFormat += theCal.get(Calendar.DAY_OF_MONTH) + ", ";
@@ -227,7 +230,12 @@ public class StatisticListFragment extends ListFragment {
         @Override
         public int compare(ExerciseLogConsolidated e1, ExerciseLogConsolidated e2) {
 
-            int result =  Integer.parseInt(Long.toString(mExerciseLogLab.exerciseScore(e2.getExerciseID()) - mExerciseLogLab.exerciseScore(e1.getExerciseID())));
+            int result =  Integer.parseInt(Long.toString(e2.mSumLikes - e1.mSumLikes));
+
+            if(result == 0){
+                result = Integer.parseInt(Long.toString(e1.mSumSkips - e2.mSumSkips));
+            }
+
             // Tie breaker is the id of the exercise
             if(result == 0){
                 result = Integer.parseInt(Long.toString(e2.getExerciseID() - e1.getExerciseID()));
