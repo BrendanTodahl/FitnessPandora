@@ -57,6 +57,7 @@ public class StatisticListFragment extends ListFragment {
                 tempArray.add(el);
             }
         }
+        mExerciseLogs = tempArray;
     }
 
     @Override
