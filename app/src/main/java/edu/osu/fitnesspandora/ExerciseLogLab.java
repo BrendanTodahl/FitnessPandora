@@ -58,7 +58,7 @@ public class ExerciseLogLab {
                                 if(exerciseDate != Long.MIN_VALUE && exerciseID != Long.MIN_VALUE && workoutID != Long.MIN_VALUE && exerciseScore != Long.MIN_VALUE){
                                     // Construct the new exercise log
                                     ExerciseLog exerciseLog = new ExerciseLog(exerciseDate, exerciseID, workoutID, exerciseScore);
-                                    Log.i("Firebase", "Added new exercise log: " + exerciseLog.toString());
+                                    // Log.i("Firebase", "Added new exercise log: " + exerciseLog.toString());
                                     // Add the exercise log
                                     mExerciseLogs.add(exerciseLog);
                                 }

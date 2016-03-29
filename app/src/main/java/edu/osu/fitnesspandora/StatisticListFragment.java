@@ -43,8 +43,20 @@ public class StatisticListFragment extends ListFragment {
         mExerciseLab = ExerciseLab.get();
         mExerciseLogs = ExerciseLogLab.get(mUser.getAuthUID()).getExerciseLogs();
 
+        // Discard the 'Skips', i.e the exercises the user didn't complete
+        discardExerciseLogs();
+
         ExerciseLogAdapter adapter = new ExerciseLogAdapter(mExerciseLogs);
         setListAdapter(adapter);
+    }
+
+    private void discardExerciseLogs(){
+        ArrayList<ExerciseLog> tempArray = new ArrayList<ExerciseLog>();
+        for(ExerciseLog el : mExerciseLogs){
+            if(el.getexerciseScore() > 0){
+                tempArray.add(el);
+            }
+        }
     }
 
     @Override
@@ -78,10 +90,11 @@ public class StatisticListFragment extends ListFragment {
             Exercise exercise = mExerciseLab.getExercise(e.getExerciseID());
             Workout workout = mWorkoutLab.getWorkout(e.getWorkoutID());
 
-            Log.i("Exercise Log", "Exercise Log: " + e.toString());
-
             TextView exerciseTitle = (TextView) convertView.findViewById(R.id.exercise_log_list_item_exercisetitle);
-            exerciseTitle.setText(exercise.getExerciseTitle() + " (under workout type " + workout.getWorkoutTitle() + ")");
+            exerciseTitle.setText(exercise.getExerciseTitle());
+
+            TextView workoutTitle = (TextView) convertView.findViewById(R.id.exercise_log_list_item_workouttitle);
+            workoutTitle.setText(workout.getWorkoutTitle() + " Workout");
 
             TextView date = (TextView) convertView.findViewById(R.id.exercise_log_list_item_date);
             Date theDate = new Date(e.getExerciseDate());
@@ -90,7 +103,7 @@ public class StatisticListFragment extends ListFragment {
 
             String dateFormat = "";
             dateFormat += theCal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault()) + " ";
-            dateFormat += theCal.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
+            dateFormat += theCal.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault()) + ", ";
             dateFormat += theCal.get(Calendar.DAY_OF_MONTH) + ", ";
             dateFormat += theCal.get(Calendar.YEAR);
             date.setText(dateFormat);

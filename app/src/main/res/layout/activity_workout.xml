@@ -30,8 +30,13 @@
             android:gravity="center"
             android:text="Instructional Video"
             android:textSize="20dp"
-            android:padding="20dp"
-            android:layout_alignParentTop="true"/>
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:paddingTop="20dp"
+            android:paddingBottom="20dp"
+            android:layout_alignParentTop="true"
+            android:textAllCaps="false"/>
 
 
 
