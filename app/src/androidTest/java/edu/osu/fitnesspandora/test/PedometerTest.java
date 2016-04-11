@@ -13,6 +13,10 @@ import android.widget.TextView;
 
 /**
  * Created by Brendan on 4/10/2016.
+ * Tests Pedometer functionality
+ *
+ * ***Note: Test of accelerometer doesn't actually utilize the accelerometer since Robotium/JUnit
+ * does not have that functionality. Instead, the textView is changed on the UiThread.
  */
 public class PedometerTest extends ActivityInstrumentationTestCase2<LoginActivity> {
   	private Solo solo;
@@ -32,7 +36,7 @@ public class PedometerTest extends ActivityInstrumentationTestCase2<LoginActivit
         solo.finishOpenedActivities();
         super.tearDown();
   	}
-  
+
 	public void testA_Login() {
         //Wait for activity: 'edu.osu.fitnesspandora.LoginActivity'
 		solo.waitForActivity(LoginActivity.class, 2000);

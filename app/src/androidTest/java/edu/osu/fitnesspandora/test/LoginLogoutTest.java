@@ -9,6 +9,7 @@ import android.test.ActivityInstrumentationTestCase2;
 
 /**
  * Created by Brendan on 4/10/2016.
+ * Tests login and logout functionality
  */
 public class LoginLogoutTest extends ActivityInstrumentationTestCase2<LoginActivity> {
   	private Solo solo;
@@ -29,7 +30,6 @@ public class LoginLogoutTest extends ActivityInstrumentationTestCase2<LoginActiv
         super.tearDown();
   	}
 
-	// Test to login
 	public void testA_Login() {
         //Wait for activity: 'edu.osu.fitnesspandora.LoginActivity'
 		solo.waitForActivity(LoginActivity.class, 2000);
@@ -47,7 +47,6 @@ public class LoginLogoutTest extends ActivityInstrumentationTestCase2<LoginActiv
 		assertTrue("edu.osu.fitnesspandora.MainActivity is not found!", solo.waitForActivity(MainActivity.class));
 	}
 
-	// Test to logout
 	public void testB_Logout() {
 		//Wait for activity: 'edu.osu.fitnesspandora.MainActivity'
 		solo.waitForActivity(MainActivity.class, 2000);

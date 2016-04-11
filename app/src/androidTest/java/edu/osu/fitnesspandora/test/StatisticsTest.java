@@ -10,6 +10,7 @@ import edu.osu.fitnesspandora.StatisticListActivity;
 
 /**
  * Created by Brendan on 4/11/2016.
+ * Tests statistics functionality
  */
 public class StatisticsTest extends ActivityInstrumentationTestCase2<LoginActivity>  {
     private Solo solo;
