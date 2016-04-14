@@ -29,6 +29,9 @@ public class WorkoutActivity  extends AppCompatActivity {
     public static final String EXTRA_WORKOUT_ID =
             "com.bignerdranch.android.criminalintent.workout_id";
 
+    public static final String EXERCISE_QUEUE = "exercise_queue";
+    private String mExerciseIDQueue = "";
+
     private User mUser;
     private ArrayList<Exercise> mExercises;
     private Workout mWorkout;
@@ -66,7 +69,9 @@ public class WorkoutActivity  extends AppCompatActivity {
         mLikeButton = (Button) findViewById(R.id.button_like);
         mInstructionButton = (Button) findViewById(R.id.exercise_instructions);
 
-        // TODO Read the index back from bundle state save
+        if (savedInstanceState != null) {
+            mExerciseIDQueue = savedInstanceState.getString(EXERCISE_QUEUE);
+        }
 
         // Build the priority exercise queue
         buildExercisePriorityQueue();
@@ -108,9 +113,22 @@ public class WorkoutActivity  extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
 
+        mExerciseIDQueue = "";
 
+        // Store the exercise id's that are in the priority queue
+        for(int i = mCurrentExerciseIndex; i < mExercises.size(); i++){
+            mExerciseIDQueue = mExerciseIDQueue + Long.toString(mExercises.get(i).getExerciseID()) + ":";
+        }
+        for(int i = 0; i < mCurrentExerciseIndex; i++){
+            mExerciseIDQueue = mExerciseIDQueue + Long.toString(mExercises.get(i).getExerciseID()) + ":";
+        }
 
+        savedInstanceState.putString(EXERCISE_QUEUE, mExerciseIDQueue);
+    }
 
     // EXERCISE SELECTION ALGORITHMS
 
@@ -122,22 +140,41 @@ public class WorkoutActivity  extends AppCompatActivity {
         ArrayList<Exercise> exercisePriorityQueue = new ArrayList<Exercise>();
         ArrayList<Exercise> exerciseBadQueue = new ArrayList<Exercise>();
 
-        // Get all exercises that are linked to the current workout
-        for(int i =0; i < mExercises.size(); i++){
-            Exercise tempExercise = mExercises.get(i);
-            Log.i("Firebase", mWorkout.getWorkoutExerciseIDs().toString());
-            Log.i("Firebase", ""+tempExercise.getExerciseID());
-            Log.i("Firebase", "" + mWorkout.getWorkoutExerciseIDs().contains(tempExercise.getExerciseID()));
-            if(mWorkout.isValidExerciseID(tempExercise.getExerciseID())){
-                exercisePriorityQueue.add(tempExercise);
-            }else{
-                //comment this out so exercises that aren't part of the category aren't cycled through
-                //exerciseBadQueue.add(tempExercise);
-            }
-        }
+        if(0 < mExerciseIDQueue.length()){
 
-        // Sort the priority queue with the highest scored exercise being first
-        Collections.sort(exercisePriorityQueue, new CompareExerciseScores());
+            ArrayList<Long> exerciseIDQueue = new ArrayList<Long>();
+            for (String token : mExerciseIDQueue.split(":")) {
+                exerciseIDQueue.add(Long.parseLong(token));
+            }
+            for(int i = 0; i < exerciseIDQueue.size(); i++){
+                for(Exercise e : mExercises){
+                    if(e.getExerciseID() == exerciseIDQueue.get(i)){
+                        exercisePriorityQueue.add(e);
+                    }
+                }
+
+            }
+
+        }else{
+
+            // Get all exercises that are linked to the current workout
+            for(int i =0; i < mExercises.size(); i++){
+                Exercise tempExercise = mExercises.get(i);
+                Log.i("Firebase", mWorkout.getWorkoutExerciseIDs().toString());
+                Log.i("Firebase", ""+tempExercise.getExerciseID());
+                Log.i("Firebase", "" + mWorkout.getWorkoutExerciseIDs().contains(tempExercise.getExerciseID()));
+                if(mWorkout.isValidExerciseID(tempExercise.getExerciseID())){
+                    exercisePriorityQueue.add(tempExercise);
+                }else{
+                    //comment this out so exercises that aren't part of the category aren't cycled through
+                    //exerciseBadQueue.add(tempExercise);
+                }
+            }
+
+            // Sort the priority queue with the highest scored exercise being first
+            Collections.sort(exercisePriorityQueue, new CompareExerciseScores());
+
+        }
 
         // Now add all of the bad exercises to the tail of the priority queue
         for(Exercise e : exerciseBadQueue){
