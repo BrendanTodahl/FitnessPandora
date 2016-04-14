@@ -53,6 +53,7 @@ import static android.Manifest.permission.READ_CONTACTS;
 public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
 
     private String TAG = this.getClass().getSimpleName();
+    private static final String REGISTER_BUTTON_PRESSED = "register_button_pressed";
 
     /**
      * Id to identity READ_CONTACTS permission request.
@@ -208,6 +209,16 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
 
         }
+
+        if (savedInstanceState != null) {
+            userIsNew(savedInstanceState.getBoolean(REGISTER_BUTTON_PRESSED));
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        savedInstanceState.putBoolean(REGISTER_BUTTON_PRESSED, mUserIsNew);
     }
 
     @Override
