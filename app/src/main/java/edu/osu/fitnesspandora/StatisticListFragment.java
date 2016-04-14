@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -25,6 +26,9 @@ import java.util.Locale;
 public class StatisticListFragment extends ListFragment {
 
     private static final String TAG = "StatisticListFragment";
+
+    private static final String SAVED_STATE = "Saved_State";
+    private boolean mStateIsNew;
 
     // User's credentials from SharedPreferences
     private User mUser;
@@ -48,30 +52,40 @@ public class StatisticListFragment extends ListFragment {
         // Initialize the user's credentials
         mUser = User.get(getActivity());
 
-        // Set the sort buttons to visible and hook em up
-        getActivity().findViewById(R.id.stats_sort_buttons).setVisibility(View.VISIBLE);
-        mDateButton = (Button) getActivity().findViewById(R.id.stats_date_button);
-        mDateButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Sort by the consolidated exercise dates, latest first
-                Collections.sort(mELCLab.mConsExerciseLogs, new CompareConsolidatedExerciseDates());
-                // Restart the adapter
-                ConsolidatedExerciseLogAdapter adapter = new ConsolidatedExerciseLogAdapter(mELCLab.mConsExerciseLogs);
-                setListAdapter(adapter);
-            }
-        });
-        mScoreButton = (Button) getActivity().findViewById(R.id.stats_score_button);
-        mScoreButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Sort by the consolidated exercise scores
-                Collections.sort(mELCLab.mConsExerciseLogs, new CompareConsolidatedExerciseScores());
-                // Restart the adapter
-                ConsolidatedExerciseLogAdapter adapter = new ConsolidatedExerciseLogAdapter(mELCLab.mConsExerciseLogs);
-                setListAdapter(adapter);
-            }
-        });
+        if(savedInstanceState == null){
+
+            mStateIsNew = true;
+
+            // Set the sort buttons to visible and hook em up
+            getActivity().findViewById(R.id.stats_sort_buttons).setVisibility(View.VISIBLE);
+
+            mDateButton = (Button) getActivity().findViewById(R.id.stats_date_button);
+            mDateButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Sort by the consolidated exercise dates, latest first
+                    Collections.sort(mELCLab.mConsExerciseLogs, new CompareConsolidatedExerciseDates());
+                    // Restart the adapter
+                    ConsolidatedExerciseLogAdapter adapter = new ConsolidatedExerciseLogAdapter(mELCLab.mConsExerciseLogs);
+                    setListAdapter(adapter);
+                }
+            });
+            mScoreButton = (Button) getActivity().findViewById(R.id.stats_score_button);
+            mScoreButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Sort by the consolidated exercise scores
+                    Collections.sort(mELCLab.mConsExerciseLogs, new CompareConsolidatedExerciseScores());
+                    // Restart the adapter
+                    ConsolidatedExerciseLogAdapter adapter = new ConsolidatedExerciseLogAdapter(mELCLab.mConsExerciseLogs);
+                    setListAdapter(adapter);
+                }
+            });
+
+        }else{
+            // DO NOTHING
+            mStateIsNew = false;
+        }
 
         // Initialize data from Firebase
         mWorkoutLab = WorkoutLab.get();
@@ -79,7 +93,7 @@ public class StatisticListFragment extends ListFragment {
         mExerciseLogLab = ExerciseLogLab.get(mUser.getAuthUID());
         mExerciseLogs = mExerciseLogLab.getExerciseLogs();
 
-         mELCLab = new ExerciseLogConsolidatedLab(mExerciseLogLab);
+        mELCLab = new ExerciseLogConsolidatedLab(mExerciseLogLab);
 
         // Sort by the consolidated exercise dates, latest first
         Collections.sort(mELCLab.mConsExerciseLogs, new CompareConsolidatedExerciseDates());
@@ -87,6 +101,24 @@ public class StatisticListFragment extends ListFragment {
         // Restart the adapter
         ConsolidatedExerciseLogAdapter adapter = new ConsolidatedExerciseLogAdapter(mELCLab.mConsExerciseLogs);
         setListAdapter(adapter);
+
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        mStateIsNew = false;
+        savedInstanceState.putBoolean(SAVED_STATE, mStateIsNew);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if(mStateIsNew){
+            ((ConsolidatedExerciseLogAdapter)getListAdapter()).notifyDataSetChanged();
+        }else{
+            // DO NOTHING
+        }
     }
 
     private void discardExerciseLogs(){
@@ -103,12 +135,6 @@ public class StatisticListFragment extends ListFragment {
     public void onListItemClick(ListView l, View v, int position, long id) {
 
 
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        ((ConsolidatedExerciseLogAdapter)getListAdapter()).notifyDataSetChanged();
     }
 
     private class ExerciseLogAdapter extends ArrayAdapter<ExerciseLog> {
