@@ -7,10 +7,12 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,6 +45,22 @@ public class PedometerActivity extends AppCompatActivity implements SensorEventL
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pedometer);
         setTitle(R.string.pedometer);
+
+        // Custom actionbar
+        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+        getSupportActionBar().setCustomView(R.layout.actionbar_main);
+
+        ImageView mLogoutButton = (ImageView)findViewById(R.id.logout_button);
+        mLogoutButton.setEnabled(false);
+        mLogoutButton.setVisibility(View.INVISIBLE);
+
+        ImageView mBackButton = (ImageView)findViewById(R.id.back_button);
+        mBackButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
 
         mPedometerCounterTextView = (TextView)findViewById(R.id.pedometerCounter);
         mPedometerCounterTextView.setText("0");
