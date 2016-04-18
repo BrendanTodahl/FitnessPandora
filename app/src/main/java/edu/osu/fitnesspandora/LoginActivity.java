@@ -33,6 +33,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.firebase.client.AuthData;
 import com.firebase.client.DataSnapshot;
@@ -114,6 +115,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.i(TAG, "Lifecycle method onCreate() triggered");
+
+        //if user has no network connection, inform them that data won't be logged
+        String networkStatus = NetworkHelper.getStatusString(LoginActivity.this);
+        if(networkStatus == "No network connection!  Data will not be logged!") {
+            Toast.makeText(LoginActivity.this, "No Network Connection! Cannot get data!", Toast.LENGTH_LONG).show();
+        }
+
 
         // Initialize Firebase with the context
         Firebase.setAndroidContext(this);
