@@ -1,28 +1,23 @@
 package edu.osu.fitnesspandora;
 
-import android.app.Fragment;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.firebase.client.Firebase;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.UUID;
 
 public class WorkoutActivity  extends AppCompatActivity {
 
@@ -38,7 +33,7 @@ public class WorkoutActivity  extends AppCompatActivity {
     private ExerciseLogLab mExerciseLogLab;
 
     private TextView mExerciseTitle;
-    //private TextView mExerciseInstructions;
+
     private Button mSkipButton;
     private Button mLikeButton;
     private Button mInstructionButton;
@@ -52,6 +47,22 @@ public class WorkoutActivity  extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_workout);
+
+        // Custom actionbar
+        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+        getSupportActionBar().setCustomView(R.layout.actionbar_main);
+
+        ImageView mLogoutButton = (ImageView)findViewById(R.id.logout_button);
+        mLogoutButton.setEnabled(false);
+        mLogoutButton.setVisibility(View.INVISIBLE);
+
+        ImageView mBackButton = (ImageView)findViewById(R.id.back_button);
+        mBackButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
 
         // Get the one workout the user has selected to do
         mWorkout = WorkoutLab.get().getWorkout((long) getIntent().getSerializableExtra(EXTRA_WORKOUT_ID));

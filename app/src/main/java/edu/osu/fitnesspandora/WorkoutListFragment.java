@@ -3,11 +3,9 @@ package edu.osu.fitnesspandora;
 import android.app.ListFragment;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -22,7 +20,6 @@ public class WorkoutListFragment extends ListFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getActivity().setTitle("Select Workout");
 
         mWorkouts = WorkoutLab.get().getWorkouts();
         WorkoutAdapter adapter = new WorkoutAdapter(mWorkouts);
@@ -59,6 +56,7 @@ public class WorkoutListFragment extends ListFragment {
                 convertView = getActivity().getLayoutInflater()
                         .inflate(R.layout.list_item_workout, null);
             }
+
             // Configure the view for this Workout
             Workout w = getItem(position);
             TextView titleTextView =
