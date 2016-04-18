@@ -1,11 +1,13 @@
 package edu.osu.fitnesspandora;
 
 
+import android.app.DownloadManager;
 import android.util.Log;
 
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
+import com.firebase.client.Query;
 import com.firebase.client.ValueEventListener;
 
 import java.util.ArrayList;
@@ -29,11 +31,11 @@ public class ExerciseLogLab {
         // Get exercises from Firebase
         Log.i("Firebase", "Starting loading Exercise Logs.");
         Firebase firebaseRef = new Firebase("https://fitnesspandora.firebaseio.com/users/" + userUID + "/exerciseLog");
-        if(firebaseRef != null){
-            firebaseRef.addValueEventListener(new ValueEventListener() {
+        Query mQuery = firebaseRef.limitToLast(10);
+        if(mQuery != null){
+            mQuery.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot snapshot) {
-
                     mExerciseLogs = new ArrayList<ExerciseLog>();
 
                     if (snapshot.getValue() != null) {
@@ -56,13 +58,13 @@ public class ExerciseLogLab {
                                     workoutID = ((long) exerciseSnapshot.getValue());
                                 } else if (exerciseSnapshot.getKey().equals("exerciseScore")) {
                                     exerciseScore = ((long) exerciseSnapshot.getValue());
-                                }else if (exerciseSnapshot.getKey().equals("exerciseReps")){
+                                } else if (exerciseSnapshot.getKey().equals("exerciseReps")) {
                                     exerciseReps = ((long) exerciseSnapshot.getValue());
-                                }else if (exerciseSnapshot.getKey().equals("exerciseWeight")){
+                                } else if (exerciseSnapshot.getKey().equals("exerciseWeight")) {
                                     exerciseWeight = ((long) exerciseSnapshot.getValue());
                                 }
 
-                                if(exerciseDate != Long.MIN_VALUE && exerciseID != Long.MIN_VALUE && workoutID != Long.MIN_VALUE && exerciseScore != Long.MIN_VALUE && exerciseReps != Long.MIN_VALUE && exerciseWeight != Long.MIN_VALUE){
+                                if (exerciseDate != Long.MIN_VALUE && exerciseID != Long.MIN_VALUE && workoutID != Long.MIN_VALUE && exerciseScore != Long.MIN_VALUE && exerciseReps != Long.MIN_VALUE && exerciseWeight != Long.MIN_VALUE) {
                                     // Construct the new exercise log
                                     ExerciseLog exerciseLog = new ExerciseLog(exerciseDate, exerciseID, workoutID, exerciseScore, exerciseReps, exerciseWeight);
                                     // Log.i("Firebase", "Added new exercise log: " + exerciseLog.toString());

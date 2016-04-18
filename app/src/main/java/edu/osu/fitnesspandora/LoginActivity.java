@@ -592,7 +592,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 // Wait for the registration results
                 try {
                     // Delay to simulate network access.
-                    Thread.sleep(3000);
+                    Thread.sleep(2000);
                 } catch (InterruptedException e) {
                     return false;
                 }
@@ -626,7 +626,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 // Wait for the login results
                 try {
                     // Delay to simulate network access.
-                    Thread.sleep(3000);
+                    Thread.sleep(2000);
                 } catch (InterruptedException e) {
                     return false;
                 }
