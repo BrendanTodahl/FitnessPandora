@@ -51,7 +51,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text = "Enter Reps:"
-                android:textSize="40dp"/>
+                android:textSize="40dp"
+                android:layout_marginLeft="20dp"
+                />
             <EditText
                 android:inputType="number"
                 android:id="@+id/editReps"
@@ -73,7 +75,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text = "Enter Weight:"
-                android:textSize="40dp"/>
+                android:textSize="40dp"
+                android:layout_marginLeft="20dp"
+                />
             <EditText
                 android:inputType="number"
                 android:id="@+id/editWeight"
